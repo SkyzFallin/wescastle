@@ -2,6 +2,12 @@
   <img src="banner.svg" alt="HTML Static Site Starter Banner" width="100%"/>
 </p>
 
+![HTML](https://img.shields.io/badge/HTML-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS-1572B6?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
+![Author](https://img.shields.io/badge/Author-SkyzFallin-ce9178?style=flat-square&logo=github&logoColor=white)
+
 # HTML-static-site-starter
 
 A retro CRT terminal animation built with pure HTML, CSS, and JavaScript. Simulates a Windows XP command prompt on a vintage beige monitor — complete with scanlines, phosphor glow, and typed commands.

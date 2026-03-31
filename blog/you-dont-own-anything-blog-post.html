@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Developers Actually Own When Every Tool Is Someone Else's Platform | WesCastle Blog</title>
+<meta name="description" content="Your code is on GitHub. Your DNS is on Cloudflare. Your email is on Google. Your deployments are on Vercel. What do you actually own? Less than you think.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e12;
+    --surface: #13161c;
+    --surface-raised: #1a1e26;
+    --border: #252a34;
+    --text: #e0e4ec;
+    --text-muted: #8891a4;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.12);
+    --green: #22c55e;
+    --red: #ef4444;
+    --orange: #f97316;
+    --purple: #a78bfa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .hero {
+    position: relative;
+    padding: 6rem 2rem 4rem;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .meta {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .meta .tag {
+    background: var(--accent);
+    color: #fff;
+    padding: 0.2em 0.65em;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1.15;
+    color: #fff;
+    margin-bottom: 1.25rem;
+    font-weight: 400;
+  }
+  h1 .highlight {
+    color: var(--accent);
+  }
+  .subtitle {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 620px;
+    line-height: 1.7;
+  }
+
+  .article {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 3.5rem 2rem 5rem;
+  }
+  .article h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.65rem;
+    color: #fff;
+    margin: 3rem 0 1rem;
+    font-weight: 400;
+  }
+  .article h2:first-of-type { margin-top: 0; }
+  .article p {
+    margin-bottom: 1.35rem;
+    font-size: 1.04rem;
+  }
+  .article a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(59,130,246,0.3);
+    transition: border-color 0.2s;
+  }
+  .article a:hover { border-color: var(--accent); }
+  .article strong {
+    font-weight: 500;
+    color: #fff;
+  }
+  .article code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+  }
+
+  .pull-quote {
+    border-left: 3px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    margin: 2rem 0;
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 1.08rem;
+    line-height: 1.7;
+  }
+
+  .callout {
+    background: var(--accent-glow);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 2rem 0;
+  }
+  .callout p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .callout strong { color: var(--accent); }
+
+  .article-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 4rem 1.25rem 2.5rem; }
+    .article { padding: 2.5rem 1.25rem 3rem; }
+    .audit-table { font-size: 0.85rem; }
+    .audit-table th, .audit-table td { padding: 0.5rem 0.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="meta">
+      <span class="tag">Opinion</span>
+      <span>March 31, 2026</span>
+      <span>&middot;</span>
+      <span>7 min read</span>
+    </div>
+    <h1>You Don't Own <span class="highlight">Anything</span> — Here's How to Fix That.</h1>
+    <p class="subtitle">Your code is on GitHub. Your DNS is on Cloudflare. Your email is on Google. Your deployments are on Vercel. What do you actually control? Less than you think.</p>
+  </div>
+</header>
+
+<article class="article">
+
+  <h2>The Slow Handoff</h2>
+
+  <p>Nobody wakes up one day and decides to hand their entire professional existence to a handful of companies. It happens gradually. You sign up for GitHub because that's where the repos are. You use Gmail because it's free and it works. You point your domain at Cloudflare because the performance is good and the free tier is generous. You deploy on Vercel or Netlify because the DX is great and you don't want to think about servers.</p>
+
+  <p>Each individual decision is perfectly reasonable. But step back and look at what you've built: a career that runs entirely on platforms where you are a user, not an owner. Every one of those services has a terms of service agreement that gives them the right to change the rules, raise prices, or shut you down — and most of them can do it without warning.</p>
+
+  <p>This isn't theoretical. In the last few years we've seen GitHub suspend developer accounts with no notice and no appeal path for months. Google has shut down entire Workspace accounts over automated policy violations, taking email, Drive, and calendar with them. Cloudflare has dropped customers from their network for content decisions. Heroku killed their free tier and gave everyone a few months to figure it out. Services you build your workflow around can change overnight, and you have no seat at the table when those decisions get made.</p>
+
+  <h2>The Audit Nobody Wants to Do</h2>
+
+  <p>Here's an exercise that will either bore you or terrify you. Sit down and list every service that, if it disappeared tomorrow, would break something important in your life as a developer. Not "would be annoying" — would actually break something. Can't push code. Can't receive email. Can't deploy. Can't resolve your domain. Can't log in to other services because SSO goes through one provider.</p>
+
+  <p>For most developers, that list looks something like this:</p>
+
+  <img src="developers-backup-plan.jpg" alt="Developer's Backup Plan — mind map showing 10 dependency categories (source code, email, DNS, auth, domains, deployments, databases, secrets, CI/CD, package registries) with risks and backup actions for each" style="width: 100%; border-radius: 10px; border: 1px solid var(--border); margin: 1.5rem 0 0.5rem;" loading="lazy">
+  <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-bottom: 2rem; font-style: italic;">The full picture. Tap any tile below to dig into the details.</p>
+
+  <!-- Interactive dependency map -->
+  <div id="dep-map" style="margin: 2rem 0;">
+    <div id="dep-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 0.7rem; margin-bottom: 1rem;"></div>
+    <div id="dep-detail" style="background: var(--surface); border-radius: 12px; padding: 1.75rem; display: none;"></div>
+    <div id="dep-footer" style="background: rgba(59,130,246,0.08); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.3rem; margin-top: 0.5rem;">
+      <p style="margin: 0; font-size: 0.9rem; line-height: 1.6; font-weight: 300;"><strong style="color: #93c5fd; font-weight: 500;">The 3-2-1 rule:</strong> Keep 3 copies of anything important, on 2 different types of storage, with 1 copy offsite. Most developers have exactly 1 copy of everything, hosted by someone else.</p>
+    </div>
+  </div>
+
+  <style>
+    .dep-node {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem 0.9rem;
+      cursor: pointer; text-align: left;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .dep-node:hover { transform: translateY(-1px); }
+    .dep-node-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.45rem; }
+    .dep-node-icon { font-size: 1.4rem; line-height: 1; }
+    .dep-risk-badge {
+      font-size: 0.58rem; font-weight: 600; letter-spacing: 0.08em;
+      padding: 0.15em 0.5em; border-radius: 3px; text-transform: uppercase;
+    }
+    .dep-risk-critical { color: #fca5a5; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); }
+    .dep-risk-high { color: #fdba74; background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.25); }
+    .dep-node-label { color: #fff; font-weight: 500; font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .dep-node-prov { color: var(--text-muted); font-size: 0.73rem; font-weight: 300; line-height: 1.35; }
+    .dep-action {
+      background: #1a1e26; border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.9rem 1rem; margin-bottom: 0.6rem;
+    }
+    .dep-action:last-child { margin-bottom: 0; }
+    .dep-action-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; flex-wrap: wrap; gap: 0.4rem; }
+    .dep-action-name { color: #fff; font-weight: 500; font-size: 0.9rem; }
+    .dep-effort {
+      font-size: 0.62rem; font-weight: 500; padding: 0.15em 0.5em;
+      border-radius: 3px; letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .dep-effort-low { color: #4ade80; background: rgba(34,197,94,0.15); }
+    .dep-effort-medium { color: #93c5fd; background: rgba(59,130,246,0.15); }
+    .dep-action-tools { color: var(--text-muted); font-size: 0.82rem; font-weight: 300; line-height: 1.45; }
+    @keyframes depFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 600px) { #dep-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+
+  <script>
+  (function() {
+    var D = [
+      { id:"code", label:"Source Code", icon:"\u27E8\u27E9", risk:"critical",
+        prov:"GitHub \u00b7 GitLab \u00b7 Bitbucket",
+        breaks:"Years of work \u2014 repos, branches, tags, commit history \u2014 all inaccessible. Open-source contributions vanish. Employer orgs lose access if you\u2019re the admin.",
+        backups:[
+          {a:"Automated daily mirrors", t:"ForkOff, ghbackup, or cron + git clone --mirror", e:"low"},
+          {a:"Second remote", t:"Push to both GitHub and a self-hosted Gitea/Forgejo instance", e:"medium"},
+          {a:"Local clone on external drive", t:"Manual git clone --mirror to a USB or NAS", e:"low"}
+        ]},
+      { id:"email", label:"Email", icon:"\u2709", risk:"critical",
+        prov:"Google Workspace \u00b7 Gmail \u00b7 Outlook \u00b7 Fastmail",
+        breaks:"Lose all messages \u2014 but that\u2019s not the real danger. Your email is the recovery method for every other account you own. Password resets, 2FA recovery, account verification \u2014 all route through it. One lockout cascades into total digital lockout.",
+        backups:[
+          {a:"Local IMAP sync", t:"mbsync (isync) \u2014 pulls full mailbox to local storage", e:"medium"},
+          {a:"Forward to a second address", t:"Auto-forward to a backup email on a different provider", e:"low"},
+          {a:"Periodic data export", t:"Google Takeout or your provider\u2019s export tool", e:"low"}
+        ]},
+      { id:"dns", label:"DNS", icon:"\u25CE", risk:"critical",
+        prov:"Cloudflare \u00b7 Route 53 \u00b7 Namecheap DNS",
+        breaks:"Every domain you own goes dark. Websites, APIs, email routing (MX records), SSL verification \u2014 all stop working. If you don\u2019t know what your records are, you can\u2019t recreate them under pressure.",
+        backups:[
+          {a:"Export zone files regularly", t:"Cloudflare dashboard export, cli4, or dig + scripting", e:"low"},
+          {a:"Document records in a text file", t:"Plain text or markdown listing all DNS records per domain", e:"low"},
+          {a:"Secondary DNS provider", t:"Keep a secondary DNS (e.g., he.net free DNS) as a warm standby", e:"medium"}
+        ]},
+      { id:"auth", label:"Auth & Identity", icon:"\u26B7", risk:"critical",
+        prov:"Google OAuth \u00b7 GitHub OAuth \u00b7 Apple ID",
+        breaks:"If you use \u2018Sign in with Google\u2019 for 30 services and Google locks you out, you just lost access to 30 services simultaneously. Potentially unrecoverable for services with no other login method.",
+        backups:[
+          {a:"Use a password manager", t:"Bitwarden, 1Password, KeePassXC \u2014 unique passwords per service", e:"medium"},
+          {a:"Set up backup login methods", t:"Add email + password as a fallback alongside OAuth on every service", e:"medium"},
+          {a:"Store 2FA recovery codes offline", t:"Print or save to encrypted local file \u2014 not in the cloud", e:"low"}
+        ]},
+      { id:"domains", label:"Domain Registration", icon:"\uD83C\uDF10", risk:"critical",
+        prov:"Namecheap \u00b7 Cloudflare \u00b7 Porkbun \u00b7 Squarespace Domains",
+        breaks:"You could lose the domain itself \u2014 not just DNS, but actual ownership. If your registrar gets acquired (Google Domains \u2192 Squarespace) or your account is suspended, transferring under pressure is stressful and time-sensitive.",
+        backups:[
+          {a:"Keep transfer auth codes accessible", t:"Generate and store EPP/auth codes before you need them", e:"low"},
+          {a:"Enable registrar lock", t:"Prevents unauthorized transfers \u2014 turn it on for every domain", e:"low"},
+          {a:"Know your ICANN rights", t:"You have a right to transfer. Document the process now", e:"low"}
+        ]},
+      { id:"deploy", label:"Deployments", icon:"\u25B2", risk:"high",
+        prov:"Vercel \u00b7 Netlify \u00b7 Railway \u00b7 Fly.io",
+        breaks:"Production sites and APIs go offline. Build configs, environment variables, and deployment history live inside the platform. If you can redeploy from source + env vars, you recover. If you can\u2019t, you scramble.",
+        backups:[
+          {a:"Keep deployments reproducible from source", t:"Dockerfile, docker-compose, or documented build steps in the repo", e:"medium"},
+          {a:"Back up environment variables", t:"Encrypted local file or secrets manager (Bitwarden, age, SOPS)", e:"low"},
+          {a:"Know how to deploy elsewhere", t:"Test deploying to a VPS or second platform once \u2014 prove it works", e:"medium"}
+        ]},
+      { id:"db", label:"Databases", icon:"\u229E", risk:"critical",
+        prov:"PlanetScale \u00b7 Supabase \u00b7 Neon \u00b7 MongoDB Atlas",
+        breaks:"Production data \u2014 users, content, transactions \u2014 gone. Provider backups belong to the provider, not to you. If your account is suspended, their backups don\u2019t help.",
+        backups:[
+          {a:"Nightly automated dumps", t:"pg_dump, mysqldump, mongodump via cron to local or S3", e:"medium"},
+          {a:"Test your restores", t:"Actually import a dump into a local instance quarterly \u2014 prove it works", e:"medium"},
+          {a:"Logical export, not just snapshots", t:"SQL dumps are portable. Provider-specific snapshots often aren\u2019t", e:"low"}
+        ]},
+      { id:"secrets", label:"Secrets & Config", icon:"\u26BF", risk:"high",
+        prov:"Platform dashboards \u00b7 Vercel env vars \u00b7 AWS Parameter Store",
+        breaks:"API keys, database URLs, signing secrets \u2014 all trapped inside a dashboard you can\u2019t access. Recreating them means rotating keys across every service, which can take hours or days.",
+        backups:[
+          {a:"Encrypted local copy", t:"age, gpg, or SOPS-encrypted file checked into a private repo", e:"low"},
+          {a:"Password manager vault", t:"Bitwarden or 1Password \u2014 store env vars as secure notes", e:"low"},
+          {a:"Document what connects to what", t:"A plain text map: which key talks to which service", e:"low"}
+        ]},
+      { id:"cicd", label:"CI/CD Pipelines", icon:"\u21BB", risk:"high",
+        prov:"GitHub Actions \u00b7 CircleCI \u00b7 GitLab CI \u00b7 Buildkite",
+        breaks:"Your entire build, test, and deploy process disappears. If pipeline configs only live in the platform and aren\u2019t committed to your repo, you lose the ability to ship. Even in-repo configs depend on platform-specific secrets and runner setups.",
+        backups:[
+          {a:"Keep pipeline configs in your repo", t:".github/workflows, .circleci/config.yml \u2014 version-controlled, not platform-only", e:"low"},
+          {a:"Document platform-specific setup", t:"Runner configs, caches, connected services \u2014 write it down before you need it", e:"low"},
+          {a:"Know how to deploy manually", t:"If your CI dies, can you still ship? Test it once", e:"medium"}
+        ]},
+      { id:"packages", label:"Package Registry", icon:"\uD83D\uDCE6", risk:"high",
+        prov:"npm \u00b7 PyPI \u00b7 crates.io \u00b7 Docker Hub",
+        breaks:"You can\u2019t publish updates to packages other people depend on. If your account gets compromised or suspended, downstream users are stuck \u2014 and you can\u2019t push security patches.",
+        backups:[
+          {a:"Enable 2FA and save recovery codes", t:"Mandatory for npm, strongly recommended everywhere else", e:"low"},
+          {a:"Use org/team accounts", t:"Don\u2019t tie critical packages to a single personal account", e:"medium"},
+          {a:"Keep local copies of published packages", t:"Archive .tgz / .whl / .crate files locally after each publish", e:"low"}
+        ]}
+    ];
+    var R = {critical:{cls:"dep-risk-critical",label:"CRITICAL",bc:"#ef444440"},high:{cls:"dep-risk-high",label:"HIGH",bc:"#f9731640"}};
+    var active = null;
+    function render() {
+      var g = document.getElementById("dep-grid");
+      var d = document.getElementById("dep-detail");
+      var f = document.getElementById("dep-footer");
+      g.innerHTML = D.map(function(x){
+        var r = R[x.risk], on = active===x.id;
+        var s = on ? "border-color:"+r.bc+";background:"+(x.risk==="critical"?"rgba(239,68,68,0.1)":"rgba(249,115,22,0.1)")+";transform:translateY(-2px);box-shadow:0 8px 24px "+(x.risk==="critical"?"rgba(239,68,68,0.12)":"rgba(249,115,22,0.12)") : "";
+        return '<div class="dep-node" data-id="'+x.id+'" style="'+s+'"><div class="dep-node-top"><span class="dep-node-icon">'+x.icon+'</span><span class="dep-risk-badge '+r.cls+'">'+r.label+'</span></div><div class="dep-node-label">'+x.label+'</div><div class="dep-node-prov">'+x.prov+'</div></div>';
+      }).join("");
+      if (active) {
+        var x = D.filter(function(i){return i.id===active})[0];
+        var r = R[x.risk];
+        d.style.display = "block";
+        d.style.borderColor = r.bc;
+        d.style.animation = "depFadeIn 0.25s ease-out";
+        d.innerHTML = '<div style="font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#fca5a5;margin-bottom:0.5rem">\u26A0 What breaks</div><p style="color:#e0e4ec;font-size:0.93rem;line-height:1.7;font-weight:300;margin:0 0 1.25rem">'+x.breaks+'</p><div style="height:1px;background:#252a34;margin:0 0 1.25rem"></div><div style="font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#4ade80;margin-bottom:0.7rem">\u2713 What to do about it</div>'+x.backups.map(function(b){
+          return '<div class="dep-action"><div class="dep-action-top"><span class="dep-action-name">'+b.a+'</span><span class="dep-effort dep-effort-'+b.e+'">'+(b.e==="low"?"Quick win":"Some setup")+'</span></div><div class="dep-action-tools">'+b.t+'</div></div>';
+        }).join("");
+        f.style.display = "none";
+      } else {
+        d.style.display = "none";
+        f.style.display = "block";
+      }
+      g.querySelectorAll(".dep-node").forEach(function(el){
+        el.addEventListener("click", function(){
+          var id = el.getAttribute("data-id");
+          active = active===id ? null : id;
+          render();
+        });
+      });
+    }
+    render();
+  })();
+  </script>
+
+  <p>Count the red. That's your actual exposure. Most developers have five or six critical single points of failure and no fallback for any of them.</p>
+
+  <h2>This Isn't About Self-Hosting Everything</h2>
+
+  <p>Let's be clear about something before this turns into a "just run your own mail server" lecture. That's not the point. Running your own mail server is a nightmare and almost nobody should do it. Running your own Kubernetes cluster to replace Vercel is a full-time job. The cloud exists for good reasons, and using it isn't the problem.</p>
+
+  <p>The problem is having <strong>no backup plan at all</strong>.</p>
+
+  <p>There's a huge gap between "I run everything on my own hardware" and "I have zero copies of anything outside of platforms I don't control." Most developers are camped at the second extreme without realizing it. The goal isn't self-hosting purity — it's making sure that when (not if) a platform does something you didn't expect, you have options.</p>
+
+  <h2>What "Taking It Back" Actually Looks Like</h2>
+
+  <p>You just saw the map. Every tile has concrete actions — most of them are quick wins. The pattern is the same across all of them: keep a local copy, know how to move, and don't let one provider be a single point of failure. You don't need to do all ten this week. Start with source code and email — those two are the highest impact and the easiest to fix. We wrote about <a href="https://github.com/SkyzFallin/ForkOff" target="_blank" rel="noopener">ForkOff</a> in our last post if you want to knock out the code backup in five minutes.</p>
+
+  <h2>The 3-2-1 Rule Still Works</h2>
+
+  <p>This isn't new wisdom. The backup industry has been saying it for decades: keep three copies of anything important, on two different types of media, with one copy offsite. Developers know this rule and then proceed to keep exactly one copy of everything, hosted by someone else, with no local backup at all.</p>
+
+  <p>Adapting it for a modern dev setup might look like: your code lives on GitHub (copy one), gets mirrored to a local machine or NAS nightly (copy two), and gets rsynced to a cheap VPS or an encrypted cloud storage bucket monthly (copy three). That's not expensive. That's not complicated. That's an afternoon of setup and then you forget about it.</p>
+
+  <div class="callout">
+    <p><strong>The real cost isn't the disaster — it's finding out during the disaster that you have no options.</strong> A suspended account is survivable if you have copies of your work. It's catastrophic if you don't.</p>
+  </div>
+
+  <h2>Start Small</h2>
+
+  <p>You don't need to do all of this today. Pick the thing that scares you most from that table and fix it this week. For most people, that's either source code or email. Clone your repos. Set up a mail backup. That alone puts you ahead of most developers who are running their entire career on faith that nothing will ever go wrong.</p>
+
+  <p>Then, over the next few weeks, work through the rest. Export your DNS records. Dump your databases. Document your secrets somewhere that isn't a platform dashboard. None of this is glamorous work, and none of it will make for good tweets. But the developer who has a local copy of everything sleeps differently than the one who doesn't.</p>
+
+  <p class="pull-quote">You don't have to leave the cloud. You just have to stop pretending the cloud will always be there for you.</p>
+
+  <p>If you want to start with the easiest win, check out <a href="https://github.com/SkyzFallin/ForkOff" target="_blank" rel="noopener">ForkOff</a> — it automates daily git mirrors of your entire GitHub account, and it takes about five minutes to set up.</p>
+
+  <div class="article-footer">
+    <span>Written for WesCastle Blog</span>
+    <span>Tags: devops, infrastructure, backup, cloud, opinion</span>
+  </div>
+
+</article>
+
+</body>
+</html>

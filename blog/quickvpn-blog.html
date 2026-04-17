@@ -249,7 +249,7 @@
       <span>&middot;</span>
       <span>7 min read</span>
       <span>&middot;</span>
-      <span>Updated for v1.0.10</span>
+      <span>Updated for v1.0.11</span>
     </div>
     <h1>Meet <span class="highlight">QuickVPN</span>, Your Own WireGuard VPN in One Command.</h1>
     <p class="subtitle">Ninety seconds from nothing to a hardened personal VPN on DigitalOcean. No config files, no SSH gymnastics, no commercial provider you have to take at their word.</p>
@@ -373,7 +373,7 @@
 
   <h2>Some Nice-to-Haves Added Along the Way</h2>
 
-  <p>A few quality-of-life things that shipped between v1.0.0 and v1.0.10 worth calling out:</p>
+  <p>A few quality-of-life things that shipped between v1.0.0 and v1.0.11 worth calling out:</p>
 
   <ul>
     <li><strong>Guided menu for no-argument launches.</strong> Double-click the Windows .exe (or just run <code>quickvpn</code> bare) and you get a five-option menu instead of a help screen. Non-CLI users can reach the full feature set without knowing the subcommand names. Options that need SSH access to the droplet check for the local management key first and politely refuse rather than dead-ending with a cryptic error.</li>
@@ -389,12 +389,17 @@
 
   <h2 id="try-it">Try It</h2>
 
-  <p>You need a <a href="https://www.digitalocean.com/" target="_blank" rel="noopener">DigitalOcean account</a> and an <a href="https://cloud.digitalocean.com/account/api/tokens" target="_blank" rel="noopener">API token</a>. Then grab the prebuilt binary for your OS from the <a href="https://github.com/SkyzFallin/QuickVPN/releases/latest" target="_blank" rel="noopener">latest release</a> &#x2014; Windows x64, macOS Apple Silicon, and Linux x64 are all covered, no Python needed.</p>
+  <p>You need a <a href="https://www.digitalocean.com/" target="_blank" rel="noopener">DigitalOcean account</a> and an <a href="https://cloud.digitalocean.com/account/api/tokens" target="_blank" rel="noopener">API token</a>. Then grab the prebuilt binary for your OS from the <a href="https://github.com/SkyzFallin/QuickVPN/releases/latest" target="_blank" rel="noopener">latest release</a> &#x2014; Windows x64, macOS Apple Silicon, macOS Intel, and Linux x64 are all covered, no Python needed.</p>
+
+  <div class="callout">
+    <span class="callout-label">A note on OS security warnings</span>
+    <p>The binaries aren't code-signed yet (that's on the roadmap, but the certificates cost real money). Your OS will warn you the first time you run one. That's cosmetic, not a security problem &#x2014; the binary is exactly what shipped from the GitHub Actions workflow, and you can verify it with the SHA checksums on the release page if you want. To bypass the warning: on Windows, SmartScreen shows "Windows protected your PC" &#x2014; click <strong>More info</strong>, then <strong>Run anyway</strong>. On macOS, the first launch fails silently; right-click the binary in Finder and pick <strong>Open</strong>, then click <strong>Open</strong> on the confirmation dialog. After the first run both OSes remember your choice. Linux doesn't prompt.</p>
+  </div>
 
   <p>Prefer to install from source?</p>
 
   <div class="code-block" data-label="bash">
-    <code><span class="cmd">pipx install</span> git+https://github.com/SkyzFallin/QuickVPN.git@v1.0.9
+    <code><span class="cmd">pipx install</span> git+https://github.com/SkyzFallin/QuickVPN.git@v1.0.11
 <span class="cmd">quickvpn</span> init      <span class="cmt"># save your token once</span>
 <span class="cmd">quickvpn</span> setup     <span class="cmt"># ~90 seconds later you're done</span></code>
   </div>

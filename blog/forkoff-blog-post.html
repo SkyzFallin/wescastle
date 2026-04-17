@@ -15,14 +15,14 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0c0e12; --surface: #13161c; --border: #252a34;
-    --text: #e0e4ec; --text-muted: #8891a4;
+    --bg: #0c0e12; --surface: #13161c; --border: #252a34; --border-hover: #3a4150;
+    --text: #e0e4ec; --text-muted: #8891a4; --text-faint: #5a6378;
     --accent: #f97316; --accent-glow: rgba(249,115,22,0.15);
     --green: #22c55e; --blue: #3b82f6; --purple: #a78bfa;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.75; -webkit-font-smoothing:antialiased; }
-  .hero { position:relative; padding:6rem 2rem 4rem; overflow:hidden; border-bottom:1px solid var(--border); }
+  .hero { position:relative; padding:4rem 2rem 4rem; overflow:hidden; border-bottom:1px solid var(--border); }
   .hero::before { content:''; position:absolute; top:-40%; left:50%; transform:translateX(-50%); width:800px; height:800px; background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%); pointer-events:none; }
   .hero-inner { max-width:780px; margin:0 auto; position:relative; z-index:1; }
   .meta { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-muted); margin-bottom:1.5rem; font-weight:500; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
@@ -53,13 +53,76 @@
   .callout strong { color:var(--accent); }
   .pull-quote { border-left:3px solid var(--border); padding:0.75rem 1.5rem; margin:2rem 0; font-style:italic; color:var(--text-muted); font-size:1.08rem; line-height:1.7; }
   .article-footer { border-top:1px solid var(--border); margin-top:3rem; padding-top:1.5rem; font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
-  @media (max-width:600px) { .hero { padding:4rem 1.25rem 2.5rem; } .article { padding:2.5rem 1.25rem 3rem; } }
+
+  /* ── Site Header ── */
+  .site-header { padding:1.75rem 2rem; max-width:860px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; }
+  .brand { display:inline-flex; align-items:center; gap:0.6rem; text-decoration:none; color:var(--text); transition:color 0.2s; }
+  .brand:hover { color:#fff; }
+  .brand-mark { width:26px; height:26px; padding:4px 5px; border:1px solid var(--border); border-radius:6px; color:var(--accent); background:var(--surface); transition:border-color 0.2s, transform 0.3s; }
+  .brand:hover .brand-mark { border-color:var(--accent); transform:translateY(-1px); }
+  .brand-name { font-family:'JetBrains Mono', monospace; font-weight:400; font-size:0.95rem; letter-spacing:0.04em; }
+  .brand-name .dot { color:var(--accent); }
+  .site-nav { display:flex; align-items:center; gap:0.35rem; }
+  .site-nav a { font-size:0.82rem; font-weight:500; color:var(--text-muted); text-decoration:none; padding:0.4rem 0.85rem; border-radius:6px; transition:color 0.2s, background 0.2s; }
+  .site-nav a:hover { color:var(--text); background:var(--surface); }
+  .site-nav a[aria-current="page"] { color:var(--text); background:var(--surface); border:1px solid var(--border); padding:calc(0.4rem - 1px) calc(0.85rem - 1px); }
+  .header-rule { max-width:860px; margin:0 auto; height:1px; background:linear-gradient(90deg, transparent 0%, var(--border) 20%, var(--border) 80%, transparent 100%); }
+
+  /* ── Back link ── */
+  .back-link { display:inline-flex; align-items:center; gap:0.4rem; font-family:'JetBrains Mono', monospace; font-size:0.78rem; font-weight:500; color:var(--text-muted); text-decoration:none; margin-bottom:1.5rem; transition:color 0.2s, gap 0.2s; }
+  .back-link:hover { color:var(--accent); gap:0.6rem; }
+  .back-link svg { width:12px; height:12px; }
+
+  /* ── Site Footer ── */
+  .site-footer { max-width:860px; margin:0 auto; padding:0 2rem 3rem; }
+  .footer-grid { display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:3rem; padding:2.5rem 0 2rem; border-top:1px solid var(--border); }
+  .footer-col h4 { font-family:'JetBrains Mono', monospace; font-size:0.7rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:1rem; }
+  .footer-col a { display:block; font-size:0.88rem; color:var(--text-muted); text-decoration:none; padding:0.25rem 0; transition:color 0.2s, transform 0.2s; }
+  .footer-col a:hover { color:var(--text); transform:translateX(2px); }
+  .footer-brand .brand { margin-bottom:0.85rem; }
+  .footer-tag { font-size:0.85rem; color:var(--text-muted); line-height:1.55; max-width:280px; }
+  .footer-rule { width:100%; height:1px; background:var(--border); margin-bottom:1.25rem; }
+  .footer-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; font-size:0.78rem; color:var(--text-faint); }
+  .footer-bottom a { color:var(--text-muted); text-decoration:none; border-bottom:1px dotted var(--border-hover); transition:color 0.2s, border-color 0.2s; }
+  .footer-bottom a:hover { color:var(--text); border-bottom-color:var(--text-muted); }
+  .footer-prompt { font-family:'JetBrains Mono', monospace; color:var(--text-faint); }
+  .footer-prompt .prompt-symbol { color:var(--accent); }
+
+  @media (max-width:600px) {
+    .site-header { padding:1.25rem; flex-wrap:wrap; gap:0.75rem; }
+    .site-nav a { padding:0.35rem 0.6rem; font-size:0.78rem; }
+    .hero { padding:3rem 1.25rem 2.5rem; }
+    .article { padding:2.5rem 1.25rem 3rem; }
+    .site-footer { padding:0 1.25rem 2rem; }
+    .footer-grid { grid-template-columns:1fr; gap:2rem; padding-top:2rem; }
+    .footer-bottom { font-size:0.72rem; }
+  }
 </style>
 </head>
 <body>
 
+<header class="site-header">
+  <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="5 7 9 12 5 17"/>
+      <line x1="13" y1="19" x2="20" y2="19"/>
+    </svg>
+    <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="https://wescastle.com">Home</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="header-rule"></div>
+
 <header class="hero">
   <div class="hero-inner">
+    <a href="/blog/" class="back-link">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13 8H3M7 12L3 8l4-4"/></svg>
+      All posts
+    </a>
     <div class="meta">
       <span class="tag">Open Source</span>
       <span>March 31, 2026</span>
@@ -199,6 +262,36 @@
   </div>
 
 </article>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="5 7 9 12 5 17"/>
+          <line x1="13" y1="19" x2="20" y2="19"/>
+        </svg>
+        <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+      </a>
+      <p class="footer-tag">Developer tools, infrastructure ownership, and the stuff nobody tells you until it's too late.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
+      <a href="https://wescastle.com">Home</a>
+      <a href="/blog/">Blog</a>
+    </div>
+    <div class="footer-col">
+      <h4>Elsewhere</h4>
+      <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/SkyzFallin/ForkOff" target="_blank" rel="noopener">ForkOff repo</a>
+    </div>
+  </div>
+  <div class="footer-rule"></div>
+  <div class="footer-bottom">
+    <span class="footer-prompt"><span class="prompt-symbol">$</span> &copy; 2026 wescastle.com</span>
+    <span>Built by <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">SkyzFallin</a></span>
+  </div>
+</footer>
 
 </body>
 </html>

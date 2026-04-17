@@ -24,8 +24,10 @@
     --text-faint: #5a6378;
     --accent-orange: #f97316;
     --accent-blue: #3b82f6;
+    --accent-green: #7dd35f;
     --accent-orange-glow: rgba(249, 115, 22, 0.08);
     --accent-blue-glow: rgba(59, 130, 246, 0.08);
+    --accent-green-glow: rgba(125, 211, 95, 0.08);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -42,25 +44,76 @@
 
   /* ── Header ── */
   .site-header {
-    padding: 3rem 2rem 1.5rem;
+    padding: 1.75rem 2rem;
     max-width: 860px;
     margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
   }
-  .site-name {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 700;
-    font-size: 0.85rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 0.4rem;
-  }
-  .site-name a {
-    color: var(--text-muted);
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     text-decoration: none;
+    color: var(--text);
     transition: color 0.2s;
   }
-  .site-name a:hover { color: var(--text); }
+  .brand:hover { color: #fff; }
+  .brand-mark {
+    width: 26px;
+    height: 26px;
+    padding: 4px 5px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent-orange);
+    background: var(--surface);
+    transition: border-color 0.2s, color 0.2s, transform 0.3s;
+  }
+  .brand:hover .brand-mark {
+    border-color: var(--accent-orange);
+    transform: translateY(-1px);
+  }
+  .brand-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+  }
+  .brand-name .dot { color: var(--accent-orange); }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .site-nav a {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .site-nav a:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+  .site-nav a[aria-current="page"] {
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: calc(0.4rem - 1px) calc(0.85rem - 1px);
+  }
+
+  .header-rule {
+    max-width: 860px;
+    margin: 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--border) 20%, var(--border) 80%, transparent 100%);
+  }
 
   /* ── Hero ── */
   .blog-hero {
@@ -135,8 +188,10 @@
   .post-card:hover::before { opacity: 1; }
   .post-card.accent-orange::before { background: var(--accent-orange); }
   .post-card.accent-blue::before { background: var(--accent-blue); }
+  .post-card.accent-green::before { background: var(--accent-green); }
   .post-card.accent-orange:hover { background: var(--accent-orange-glow); }
   .post-card.accent-blue:hover { background: var(--accent-blue-glow); }
+  .post-card.accent-green:hover { background: var(--accent-green-glow); }
 
   .post-meta {
     display: flex;
@@ -155,6 +210,7 @@
   }
   .tag-orange { background: var(--accent-orange); color: var(--bg); }
   .tag-blue { background: var(--accent-blue); color: #fff; }
+  .tag-green { background: var(--accent-green); color: var(--bg); }
   .post-date {
     font-size: 0.75rem;
     color: var(--text-faint);
@@ -187,6 +243,7 @@
   }
   .post-card.accent-orange .post-read { color: var(--accent-orange); }
   .post-card.accent-blue .post-read { color: var(--accent-blue); }
+  .post-card.accent-green .post-read { color: var(--accent-green); }
   .post-card:hover .post-read { gap: 0.65rem; }
   .post-read svg { width: 14px; height: 14px; }
 
@@ -196,13 +253,49 @@
     margin: 0 auto;
     padding: 0 2rem 3rem;
   }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 3rem;
+    padding: 2.5rem 0 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .footer-col h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 1rem;
+  }
+  .footer-col a {
+    display: block;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.25rem 0;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .footer-col a:hover {
+    color: var(--text);
+    transform: translateX(2px);
+  }
+  .footer-brand .brand { margin-bottom: 0.85rem; }
+  .footer-tag {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    max-width: 280px;
+  }
+
   .footer-rule {
     width: 100%;
     height: 1px;
     background: var(--border);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
   }
-  .footer-inner {
+  .footer-bottom {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -211,12 +304,21 @@
     font-size: 0.78rem;
     color: var(--text-faint);
   }
-  .footer-inner a {
+  .footer-bottom a {
     color: var(--text-muted);
     text-decoration: none;
-    transition: color 0.2s;
+    border-bottom: 1px dotted var(--border-hover);
+    transition: color 0.2s, border-color 0.2s;
   }
-  .footer-inner a:hover { color: var(--text); }
+  .footer-bottom a:hover {
+    color: var(--text);
+    border-bottom-color: var(--text-muted);
+  }
+  .footer-prompt {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-faint);
+  }
+  .footer-prompt .prompt-symbol { color: var(--accent-orange); }
 
   /* ── Stagger animation ── */
   .post-card {
@@ -227,25 +329,41 @@
   .post-card:nth-child(1) { animation-delay: 0.1s; }
   .post-card:nth-child(2) { animation-delay: 0.25s; }
   .post-card:nth-child(3) { animation-delay: 0.4s; }
+  .post-card:nth-child(4) { animation-delay: 0.55s; }
   @keyframes cardIn {
     to { opacity: 1; transform: translateY(0); }
   }
 
   @media (max-width: 600px) {
-    .site-header { padding: 2rem 1.25rem 1rem; }
+    .site-header { padding: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+    .site-nav a { padding: 0.35rem 0.6rem; font-size: 0.78rem; }
     .blog-hero { padding: 1.5rem 1.25rem 2.5rem; }
     .posts { padding: 0 1.25rem 3rem; }
     .post-card { padding: 1.5rem 1.35rem; }
     .post-title { font-size: 1.3rem; }
     .site-footer { padding: 0 1.25rem 2rem; }
+    .footer-grid { grid-template-columns: 1fr; gap: 2rem; padding-top: 2rem; }
+    .footer-bottom { font-size: 0.72rem; }
   }
 </style>
 </head>
 <body>
 
 <header class="site-header">
-  <div class="site-name"><a href="https://wescastle.com">WesCastle</a></div>
+  <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="5 7 9 12 5 17"/>
+      <line x1="13" y1="19" x2="20" y2="19"/>
+    </svg>
+    <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="https://wescastle.com">Home</a>
+    <a href="/blog/" aria-current="page">Blog</a>
+    <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+  </nav>
 </header>
+<div class="header-rule"></div>
 
 <section class="blog-hero">
   <h1>Things we build, break, and think about.</h1>
@@ -255,6 +373,19 @@
 
 <section class="posts">
   <div class="posts-label">Latest Posts</div>
+
+  <a href="quickvpn-blog.html" class="post-card accent-green">
+    <div class="post-meta">
+      <span class="post-tag tag-green">Infrastructure</span>
+      <span class="post-date">April 16, 2026 &middot; 6 min read</span>
+    </div>
+    <div class="post-title">QuickVPN: Your Own WireGuard VPN in One Command.</div>
+    <p class="post-excerpt">Ninety seconds from nothing to a hardened personal VPN on DigitalOcean. No config files, no SSH gymnastics, no commercial provider you have to take at their word.</p>
+    <span class="post-read">
+      Read post
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+    </span>
+  </a>
 
   <a href="forkoff-blog-post.html" class="post-card accent-orange">
     <div class="post-meta">
@@ -285,10 +416,32 @@
 </section>
 
 <footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="5 7 9 12 5 17"/>
+          <line x1="13" y1="19" x2="20" y2="19"/>
+        </svg>
+        <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+      </a>
+      <p class="footer-tag">Developer tools, infrastructure ownership, and the stuff nobody tells you until it's too late.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
+      <a href="https://wescastle.com">Home</a>
+      <a href="/blog/">Blog</a>
+    </div>
+    <div class="footer-col">
+      <h4>Elsewhere</h4>
+      <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/SkyzFallin?tab=repositories" target="_blank" rel="noopener">Projects</a>
+    </div>
+  </div>
   <div class="footer-rule"></div>
-  <div class="footer-inner">
-    <span>&copy; 2026 WesCastle</span>
-    <span><a href="https://wescastle.com">wescastle.com</a></span>
+  <div class="footer-bottom">
+    <span class="footer-prompt"><span class="prompt-symbol">$</span> &copy; 2026 wescastle.com</span>
+    <span>Built by <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">SkyzFallin</a></span>
   </div>
 </footer>
 

@@ -245,9 +245,11 @@
     </a>
     <div class="meta">
       <span class="tag">Infrastructure</span>
-      <span>April 16, 2026</span>
+      <span>April 17, 2026</span>
       <span>&middot;</span>
-      <span>6 min read</span>
+      <span>7 min read</span>
+      <span>&middot;</span>
+      <span>Updated for v1.0.10</span>
     </div>
     <h1>Meet <span class="highlight">QuickVPN</span>, Your Own WireGuard VPN in One Command.</h1>
     <p class="subtitle">Ninety seconds from nothing to a hardened personal VPN on DigitalOcean. No config files, no SSH gymnastics, no commercial provider you have to take at their word.</p>
@@ -280,15 +282,16 @@
   <p>When you run <code>quickvpn setup</code>, it walks through nine steps with a live progress bar showing the current step, elapsed time, and step counter:</p>
 
   <ol>
-    <li>Creates a small Ubuntu droplet on DigitalOcean (~$6/month)</li>
-    <li>Connects over SSH using a <strong>temporary</strong> ED25519 key that's deleted from your DO account after setup</li>
+    <li>Creates a small Ubuntu 24.04 droplet on DigitalOcean (~$4/month, size <code>s-1vcpu-512mb-10gb</code>)</li>
+    <li>Tags the droplet <code>quickvpn</code> at creation so later commands identify it by tag rather than guessing from its name</li>
+    <li>Connects over SSH using a freshly generated Ed25519 key. The public half is removed from your DigitalOcean account the moment it's served its purpose (DO bakes it into the droplet's <code>authorized_keys</code> once, at create time). The private half is persisted locally, indexed by the droplet's ID &#x2014; so if DO ever recycles an IP to a different droplet, the CLI refuses to trust the stranger on the other end.</li>
     <li>Installs WireGuard, generates server keys, and configures the interface</li>
     <li>Locks down the firewall &#x2014; only SSH (22/tcp) and WireGuard (51820/udp) are open</li>
-    <li>Installs <code>fail2ban</code>, disables password login, creates a non-root admin user</li>
-    <li>Enables <code>unattended-upgrades</code> so security patches land automatically</li>
+    <li>Installs <code>fail2ban</code> (5 failed logins = 1&nbsp;hour ban) and disables SSH password authentication outright</li>
+    <li>Enables <code>unattended-upgrades</code> so security patches land automatically &#x2014; <em>with</em> conditional auto-reboot at 04:00 UTC on days a reboot is actually required (a globally-quiet window, typically once every week or two when a kernel lands)</li>
     <li>Kicks off a full <code>apt upgrade</code> in the background (your VPN works during it)</li>
     <li>Generates your client config <strong>locally on your machine</strong> &#x2014; the private key never touches the server</li>
-    <li>Drops a <code>.conf</code> file and an SVG QR code in your working directory</li>
+    <li>Drops a <code>.conf</code> file and an SVG QR code in your working directory, filenames tagged with the server IP and creation time so nothing silently overwrites anything</li>
   </ol>
 
   <p>Total time typically lands between 60 and 90 seconds.</p>
@@ -298,10 +301,12 @@
   <p>Want your VPN on your phone too? After setup, run:</p>
 
   <div class="code-block" data-label="bash">
-    <code><span class="cmd">quickvpn</span> add-client <span class="flag">--open-qr</span></code>
+    <code><span class="cmd">quickvpn</span> add-client <span class="flag">--name</span> phone <span class="flag">--open-qr</span></code>
   </div>
 
   <p>A QR code pops up in your browser. Open the WireGuard app on your phone, scan, done. The new peer is added to the live WireGuard interface without a restart &#x2014; existing clients stay connected.</p>
+
+  <p>The <code>--name</code> flag is new in v1.0.10 and optional. If you pass one, it's stored as a comment above the peer block on the server (WireGuard ignores comments, so every machine managing the droplet sees the same names). It shows up in <code>quickvpn list-clients</code>, and <code>quickvpn remove-client phone</code> revokes it directly &#x2014; no more guessing which opaque public-key prefix is the old phone you want to kill. The generated filename also carries the name, so <code>quickvpn-client-phone-10-66-66-3-14220417.conf</code> is self-explanatory when you come back to it three months later.</p>
 
   <p>You can have up to 253 clients per server. Each one gets its own keypair generated locally, so compromising one device doesn't compromise the rest.</p>
 
@@ -320,17 +325,22 @@
 
   <h3>Strict key separation</h3>
 
-  <p>Your DigitalOcean API token lives in memory only and is never written to disk &#x2014; revoke it after setup if you don't need management commands. SSH keys are ephemeral, generated per session, and deleted from DigitalOcean after setup completes. Client private keys are generated <strong>on your machine</strong>; the server only ever sees public keys.</p>
+  <p>Three different kinds of secret, three different lifecycles:</p>
+  <ul>
+    <li><strong>DigitalOcean API token.</strong> Used only against the DO API. If you run <code>quickvpn init</code>, it's saved to <code>~/.config/quickvpn/config.json</code> on Linux/macOS or <code>%LOCALAPPDATA%\quickvpn\config.json</code> on Windows, with <code>0600</code> perms. On Windows, that path is deliberately <em>not</em> <code>%APPDATA%</code> &#x2014; Roaming AppData is OneDrive-KFM-synced, and silently uploading a DO token to Microsoft is precisely the problem this tool is supposed to solve. If you'd rather not persist the token at all, skip <code>init</code> and pass it as an env var or flag. Either way, the token never reaches the WireGuard server itself.</li>
+    <li><strong>SSH management key.</strong> Generated per-droplet during <code>setup</code>. The public half goes into DigitalOcean just long enough for droplet creation (DO copies it into <code>/root/.ssh/authorized_keys</code> at boot), then gets deleted from your DO account. The private half is saved locally, <strong>keyed by droplet ID</strong> rather than IP &#x2014; so a future droplet that lands on a recycled IP can't impersonate the one you set up. That file is the only thing on earth that can authenticate to your server.</li>
+    <li><strong>VPN keys.</strong> Client private key is generated <strong>on your machine</strong> and never leaves it. Only the public key goes to the server. The server's private key is generated on the server and never leaves either &#x2014; its public half is derived via <code>wg pubkey</code> reading stdin, so the private key never appears in a process argv.</li>
+  </ul>
 
   <h3>Hardened before any port is exposed</h3>
 
-  <p>Password authentication is disabled and root SSH is restricted to key-only. A non-root <code>quickvpn</code> admin user is created with limited sudo. <code>fail2ban</code> rate-limits SSH (5 failures = 1-hour ban). UFW blocks everything except SSH and WireGuard. WireGuard does not log traffic by design &#x2014; there's nothing to disable.</p>
+  <p>Password authentication is disabled across the board. Root SSH is restricted to key-only (<code>PermitRootLogin prohibit-password</code>). <code>fail2ban</code> rate-limits SSH (5 failures = 1-hour ban) on top of UFW's built-in connection rate limiter. UFW blocks everything except SSH and WireGuard. Kernel hardening (reverse-path filtering, SYN cookies, disabled ICMP redirects, disabled source routing, disabled IPv6, martian-packet logging) is applied via <code>/etc/sysctl.d/</code> before setup declares victory. WireGuard does not log traffic by design &#x2014; there's nothing to disable.</p>
 
-  <p>Want to go further? Pass <code>--lock</code> during setup to disable SSH entirely after provisioning. The server becomes a black box that does exactly one thing: route encrypted packets. Heads up &#x2014; this also prevents <code>add-client</code> and <code>check</code> from working, so add all the devices you need first.</p>
+  <p>Want to go further? Pass <code>--lock</code> during setup to firewall-block SSH entirely after provisioning. The server becomes a black box that does exactly one thing: route encrypted packets. Heads up &#x2014; this also prevents <code>add-client</code> and <code>check</code> from working, so add all the devices you need first. DigitalOcean's web console (a browser-based VNC, not SSH) still works for emergency recovery.</p>
 
   <h2>What About DNS Leaks?</h2>
 
-  <p>Every client config ships with Cloudflare DNS (1.1.1.1, 1.0.0.1) baked in, and <code>AllowedIPs = 0.0.0.0/0, ::/0</code> routes <strong>all</strong> traffic &#x2014; IPv4 and IPv6 &#x2014; through the tunnel. Combine that with the WireGuard app's built-in kill switch (Windows, macOS, iOS, and Android all have one) and you get full-tunnel protection that fails closed.</p>
+  <p>Every client config ships with Cloudflare DNS (1.1.1.1, 1.0.0.1) baked in, and <code>AllowedIPs = 0.0.0.0/0</code> routes <strong>all</strong> IPv4 traffic through the tunnel. IPv6 is deliberately <em>not</em> tunneled: the droplet is provisioned with <code>ipv6=false</code> and the kernel has <code>disable_ipv6=1</code>, so any IPv6 traffic on your device stays on your local interface rather than silently blackholing inside the tunnel. Combine that with the WireGuard app's built-in kill switch (Windows, macOS, iOS, and Android all have one) and you get full-tunnel protection that fails closed. If your network is IPv6-only, enable the kill switch &#x2014; it'll block clear IPv6 rather than fall back to unprotected.</p>
 
   <p>On Linux there's no app-level switch, but a single <code>iptables</code> rule achieves the same thing &#x2014; full docs are in the repo.</p>
 
@@ -354,9 +364,23 @@
     <li><strong>You own the logs.</strong> WireGuard doesn't write them, and nobody can subpoena, sell, or leak what doesn't exist. There is no dashboard, no analytics pipeline, no billing system correlating your traffic to your identity.</li>
     <li><strong>You own the server.</strong> One user, one droplet. No shared infrastructure means no blast radius from someone else's compromise. If your server ever gets popped, the damage is bounded to you &#x2014; and you can <code>quickvpn destroy</code> and rebuild in 90 seconds.</li>
     <li><strong>You own the jurisdiction.</strong> You pick the DigitalOcean region when you run <code>setup</code>. No hidden parent company in a country you've never heard of, no mystery board of directors, no quiet change of ownership in a press release you'll never read.</li>
+    <li><strong>Your IP isn't on "known commercial VPN" blocklists.</strong> Most sites that block VPNs (banks, paywalled news, Reddit-style rate-limits, fraud-detection walls) target <em>commercial</em> VPN IP ranges specifically &#x2014; they pull reputation lists that tag "this IP belongs to NordVPN" and block that. A random DigitalOcean IP doesn't show up on those lists. A dedicated IP also means whatever someone else did yesterday can't wreck your reputation today.</li>
   </ul>
 
+  <p>Worth being honest about the limit: streaming services (Netflix, Disney+, BBC iPlayer) block nearly all datacenter IPs regardless of source. A personal DO droplet doesn't get you around those. But for the 80% of "blocked on commercial VPN" cases that aren't streaming, self-hosted on DO usually just works where a commercial provider wouldn't.</p>
+
   <p>The downside has always been the setup friction. QuickVPN is my attempt to remove that friction without cutting any corners on hardening.</p>
+
+  <h2>Some Nice-to-Haves Added Along the Way</h2>
+
+  <p>A few quality-of-life things that shipped between v1.0.0 and v1.0.10 worth calling out:</p>
+
+  <ul>
+    <li><strong>Guided menu for no-argument launches.</strong> Double-click the Windows .exe (or just run <code>quickvpn</code> bare) and you get a five-option menu instead of a help screen. Non-CLI users can reach the full feature set without knowing the subcommand names. Options that need SSH access to the droplet check for the local management key first and politely refuse rather than dead-ending with a cryptic error.</li>
+    <li><strong>Stale-config sweep.</strong> <code>setup</code> and <code>add-client</code> scan the working directory (and your home folder) for <code>quickvpn-client-*.conf</code> files pointing at droplets DO no longer has, and offer to delete them (with matching .svg QR codes). Reduces the compounding clutter problem of "ten half-remembered configs for servers that don't exist anymore."</li>
+    <li><strong>Conditional auto-reboot.</strong> The server reboots itself at 04:00 UTC only on days where <code>/var/run/reboot-required</code> exists &#x2014; so kernel and glibc updates actually take effect without needing to remember to reboot, and you don't pay the downtime tax on days where nothing needed one.</li>
+    <li><strong>Uninstall command.</strong> <code>quickvpn uninstall</code> wipes the saved token, known_hosts, and per-droplet keys from your laptop. It'll warn you if you still have droplets running so you don't orphan a paid server.</li>
+  </ul>
 
   <div class="callout">
     <span class="callout-label">One more tip</span>
@@ -365,12 +389,14 @@
 
   <h2 id="try-it">Try It</h2>
 
-  <p>You need Python 3.9+, a <a href="https://www.digitalocean.com/" target="_blank" rel="noopener">DigitalOcean account</a>, and an <a href="https://cloud.digitalocean.com/account/api/tokens" target="_blank" rel="noopener">API token</a>. Then:</p>
+  <p>You need a <a href="https://www.digitalocean.com/" target="_blank" rel="noopener">DigitalOcean account</a> and an <a href="https://cloud.digitalocean.com/account/api/tokens" target="_blank" rel="noopener">API token</a>. Then grab the prebuilt binary for your OS from the <a href="https://github.com/SkyzFallin/QuickVPN/releases/latest" target="_blank" rel="noopener">latest release</a> &#x2014; Windows x64, macOS Apple Silicon, and Linux x64 are all covered, no Python needed.</p>
+
+  <p>Prefer to install from source?</p>
 
   <div class="code-block" data-label="bash">
-    <code><span class="cmd">pipx install</span> .
-<span class="cmd">export</span> DO_API_TOKEN=<span class="str">"dop_v1_..."</span>
-<span class="cmd">quickvpn</span> setup</code>
+    <code><span class="cmd">pipx install</span> git+https://github.com/SkyzFallin/QuickVPN.git@v1.0.9
+<span class="cmd">quickvpn</span> init      <span class="cmt"># save your token once</span>
+<span class="cmd">quickvpn</span> setup     <span class="cmt"># ~90 seconds later you're done</span></code>
   </div>
 
   <p class="pull-quote">"Stop renting privacy from people you don't know. Own the server, own the keys, own the silence."</p>

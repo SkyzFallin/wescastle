@@ -1,0 +1,623 @@
+<!--
+  wescastle.com — Retro CRT terminal landing
+  Author: SkyzFallin (https://github.com/SkyzFallin)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Wes Hardcastle">
+  <title>Wes Hardcastle — Offensive Security &amp; Developer</title>
+  <meta name="description" content="Wes Hardcastle — offensive security operator. Physical pentests, social engineering, internal/external network, wireless, cloud, and AD engagements. Plus security awareness training. Engagements: wes@wescastle.com.">
+  <meta property="og:title" content="Wes Hardcastle — Offensive Security & Developer">
+  <meta property="og:description" content="Physical, network, wireless, cloud, and AD pentests. Social engineering. Security awareness training. Things I break, build, and write about.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://wescastle.com">
+  <link rel="canonical" href="https://wescastle.com/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    /* ── Top HUD nav ── */
+    .hud {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 16px;
+      background: rgba(0, 17, 0, 0.85);
+      border: 1px solid #33cc33;
+      border-radius: 999px;
+      box-shadow: 0 0 20px rgba(51, 204, 51, 0.35);
+      z-index: 50;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #33cc33;
+      text-shadow: 0 0 4px #33cc33;
+      backdrop-filter: blur(2px);
+    }
+    .hud-name {
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .hud-sep {
+      opacity: 0.4;
+    }
+    .hud a {
+      color: #33cc33;
+      text-decoration: none;
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .hud a:hover,
+    .hud a:focus-visible {
+      background: #33cc33;
+      color: #001100;
+      text-shadow: none;
+      outline: none;
+    }
+    .hud a.primary {
+      border-color: #33cc33;
+      animation: hudPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes hudPulse {
+      0%, 100% { box-shadow: 0 0 0 rgba(51, 204, 51, 0.4); }
+      50% { box-shadow: 0 0 14px rgba(51, 204, 51, 0.6); }
+    }
+
+    .monitor {
+      width: 90vw;
+      max-width: 1000px;
+      height: 82vh;
+      background: linear-gradient(145deg, #d4c8a8 0%, #c4b89a 30%, #bfb088 50%, #b8a87c 100%);
+      border-radius: 25px 25px 30px 30px;
+      padding: 50px 45px 55px 45px;
+      box-shadow:
+        0 0 80px rgba(0, 0, 0, 0.5),
+        inset 0 2px 5px rgba(255, 255, 255, 0.2),
+        inset 0 -5px 20px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+
+    .monitor::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      bottom: 15px;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(220, 200, 120, 0.4) 0%, transparent 10%),
+        radial-gradient(circle at 80% 70%, rgba(200, 180, 100, 0.3) 0%, transparent 8%),
+        radial-gradient(circle at 50% 90%, rgba(190, 170, 90, 0.3) 0%, transparent 12%);
+      pointer-events: none;
+    }
+
+    .monitor::after {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      pointer-events: none;
+    }
+
+    .monitor-logo {
+      position: absolute;
+      top: 20px;
+      right: 60px;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      font-size: 24px;
+      color: #8a7a5a;
+      text-shadow:
+        1px 1px 0 rgba(255, 255, 255, 0.3),
+        -1px -1px 0 rgba(0, 0, 0, 0.3);
+      letter-spacing: 2px;
+    }
+
+    .monitor-buttons {
+      position: absolute;
+      bottom: 25px;
+      right: 60px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .monitor-button {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #a09070 0%, #7a6a50 100%);
+      box-shadow:
+        inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+        inset 0 2px 2px rgba(255, 255, 255, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.3);
+      border: 1px solid #5a4a3a;
+      position: relative;
+    }
+
+    .monitor-button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), transparent);
+    }
+
+    .monitor-button.power::after {
+      background: radial-gradient(circle at 30% 30%, #4ade80, #22c55e);
+      box-shadow: 0 0 6px #4ade80;
+    }
+
+    .screen {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, #001100 0%, #000800 50%, #000000 100%);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid #000;
+      box-shadow:
+        inset 0 0 80px rgba(0, 20, 0, 0.8),
+        inset 0 0 40px rgba(51, 204, 51, 0.2),
+        0 0 20px rgba(0, 0, 0, 0.9);
+    }
+
+    .screen::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 50%,
+        rgba(0, 0, 0, 0.3) 51%
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 2;
+      animation: scanlines 8s linear infinite;
+    }
+
+    .screen::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0.9) 100%);
+      pointer-events: none;
+      z-index: 1;
+      border-radius: 12px;
+    }
+
+    @keyframes scanlines {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
+    }
+
+    .content {
+      position: relative;
+      z-index: 3;
+      color: #33cc33;
+      text-shadow: 0 0 5px #33cc33, 0 0 10px #33cc33;
+      animation: flicker 0.15s infinite alternate;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 0.98; }
+      50% { opacity: 1; }
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #33cc33;
+      margin-bottom: 10px;
+    }
+
+    .terminal-output {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-size: 14px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-bottom: 10px;
+    }
+
+    .terminal-output::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .terminal-output::-webkit-scrollbar-track {
+      background: #000;
+    }
+
+    .terminal-output::-webkit-scrollbar-thumb {
+      background: #33cc33;
+    }
+
+    .terminal-output a {
+      color: #7dd35f;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-shadow: 0 0 6px #7dd35f;
+      cursor: pointer;
+      position: relative;
+      z-index: 4;
+    }
+    .terminal-output a:hover {
+      background: #33cc33;
+      color: #001100;
+      text-shadow: none;
+    }
+    .terminal-output .accent {
+      color: #fff66b;
+      text-shadow: 0 0 6px #fff66b;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: #33cc33;
+      margin-left: 2px;
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .line {
+      margin: 2px 0;
+    }
+
+    /* ── Bottom hint ── */
+    .ground-hint {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: #33cc33;
+      opacity: 0.55;
+      text-shadow: 0 0 4px #33cc33;
+      z-index: 50;
+      pointer-events: none;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .ground-sep { opacity: 0.5; }
+    .ground-credit { color: #fff66b; text-shadow: 0 0 6px rgba(255, 246, 107, 0.5); }
+
+    @media (max-width: 720px) {
+      .hud { font-size: 11px; gap: 8px; padding: 6px 10px; }
+      .hud .hud-sep { display: none; }
+      .monitor { padding: 30px 20px 35px 20px; height: 78vh; }
+      .monitor-logo { font-size: 16px; right: 30px; top: 12px; }
+      .monitor-buttons { right: 30px; bottom: 12px; gap: 8px; }
+      .monitor-button { width: 18px; height: 18px; }
+      .terminal-output { font-size: 12px; }
+      .status-bar { font-size: 9px; }
+      .ground-hint { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="hud" aria-label="Primary">
+    <span class="hud-name">WES HARDCASTLE</span>
+    <span class="hud-sep">|</span>
+    <a href="/blog/" class="primary">› Blog</a>
+    <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+    <a href="http://nwhoaportal.com" target="_blank" rel="noopener">NWHOAPortal</a>
+  </nav>
+
+  <div class="monitor">
+    <div class="monitor-logo">DULL</div>
+    <div class="monitor-buttons">
+      <div class="monitor-button power"></div>
+      <div class="monitor-button"></div>
+      <div class="monitor-button"></div>
+    </div>
+    <div class="screen">
+      <div class="content">
+        <div class="status-bar">
+          <span>STATUS: ONLINE</span>
+          <span>USER: wes@wescastle.com</span>
+          <span id="clock">--/--/-- / --:--:--</span>
+        </div>
+        <div class="terminal-output" id="output" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ground-hint">
+    <span>tip: click any underlined line — or hit the HUD up top</span>
+    <span class="ground-sep">·</span>
+    <span class="ground-credit">Powered by Tacos &amp; Coffee</span>
+    <span class="ground-sep">·</span>
+    <span>&copy; <span id="copyrightYear">2026</span> wescastle.com</span>
+  </div>
+
+  <script>
+    const output = document.getElementById('output');
+    const clockEl = document.getElementById('clock');
+
+    function updateClock() {
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const year = String(now.getFullYear()).slice(-2);
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      clockEl.textContent = `${month}-${day}-${year} / ${hours}:${minutes}:${seconds}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+
+    // Each command is one of:
+    //  - { text }                 → instant line of plain text
+    //  - { text, typed: true }    → typed out char-by-char (used for prompts the user is "typing")
+    //  - { html }                 → instant line of HTML (for links / accents)
+    //  - { delay }                → wait time after this line, in ms
+    const PROMPT = 'C:\\Users\\wes&gt; ';
+    const commands = [
+      { text: 'Microsoft Windows [Version 10.0.26200]', delay: 80 },
+      { text: '(c) Wes Hardcastle. Code is mine, opinions are mine, bugs are also mine.', delay: 60 },
+      { text: '', delay: 250 },
+
+      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
+      { text: 'whoami', typed: true, delay: 400 },
+      { text: '', delay: 80 },
+      { html: 'Wes Hardcastle &mdash; <span class="accent">offensive security operator</span>, red-team tooler, developer.', delay: 40 },
+      { html: '<span class="accent">"The IT manager\'s worst nightmare."</span>', delay: 40 },
+      { text: 'I break things on purpose, then write the tools that make breaking them faster.', delay: 40 },
+      { text: 'Self-hosting evangelist. Allergic to lock-in. Friendly to shells.', delay: 40 },
+      { text: '', delay: 600 },
+
+      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
+      { text: 'cat skills.txt', typed: true, delay: 500 },
+      { text: '', delay: 80 },
+      { html: '  <span class="accent">offsec</span>     :  ent pentests, red team ops, AD attacks, cloud sec, wifi pentests, phys-sec', delay: 30 },
+      { text: '  tradecraft :  initial access, lat-mov, privesc, soc-eng, post-ex', delay: 30 },
+      { text: '  audits     :  NIST 800-53/171, ISO 27001, PCI-DSS, GLBA, FFIEC CAT, CIS, ASVS', delay: 30 },
+      { text: '  languages  :  Python, Bash, PowerShell, TypeScript, Go', delay: 30 },
+      { text: '  infra      :  Linux, Docker, DigitalOcean, Cloudflare, GitHub Actions', delay: 30 },
+      { text: '  markets    :  SPY 0-2 DTE scalping, indicator engineering, backtests, trading bots', delay: 30 },
+      { html: '  hoa-hero   :  WUCIOA compliance websites for WA HOAs &mdash; <a href="https://nwhoaportal.com" target="_blank" rel="noopener">nwhoaportal.com</a>', delay: 30 },
+      { text: '  philosophy :  own your stack, back up everything, never trust the perimeter', delay: 30 },
+      { text: '', delay: 700 },
+
+      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
+      { text: 'ls ./projects --highlights', typed: true, delay: 500 },
+      { text: '', delay: 80 },
+      { html: '<span class="accent">── project highlights (a few of many &mdash; full list on GitHub) ──</span>', delay: 40 },
+      { html: '  <span class="accent">ShellChain/</span>      SSH + su command execution for non-interactive shells', delay: 40 },
+      { html: '  <span class="accent">FourDollarVPN/</span>   one-command WireGuard VPN on a $4/mo droplet', delay: 40 },
+      { html: '  <span class="accent">SPYderScalp/</span>     SPY 0-2 DTE options signal monitor &mdash; multi-timeframe scoring, PyQt5', delay: 40 },
+      { html: '  <span class="accent">wescastle.com/</span>   this site &mdash; static, owned, no trackers', delay: 40 },
+      { html: '  more &rarr; <a href="https://github.com/SkyzFallin?tab=repositories" target="_blank" rel="noopener">github.com/SkyzFallin</a>', delay: 40 },
+      { text: '', delay: 700 },
+
+      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
+      { text: 'cat services.txt', typed: true, delay: 600 },
+      { text: '', delay: 80 },
+      { html: '<span class="accent">── what I do for hire ──────────────────────────────────────────</span>', delay: 40 },
+      { text: '  physical pentests   :  on-site walk-ins, badge cloning, drop-box implants', delay: 30 },
+      { text: '  social engineering  :  pretext ops, vendor impersonation, on-site SE', delay: 30 },
+      { text: '  network pentests    :  internal + external, AD attacks, lat-mov, privesc', delay: 30 },
+      { text: '  wifi pentests       :  rogue AP, evil-twin attacks, WPA2 key recovery, segmentation review', delay: 30 },
+      { html: '  cloud reviews       :  AWS, Azure, GCP &mdash; identity, exposure, misconfig', delay: 30 },
+      { text: '  awareness training  :  short, story-driven sessions built from real engagements', delay: 30 },
+      { html: '  &rarr; bundle anything above and stop paying three vendors to find the same finding twice', delay: 40 },
+      { html: '  &rarr; engagements: <a href="mailto:wes@wescastle.com">wes@wescastle.com</a>', delay: 40 },
+      { text: '', delay: 900 },
+
+      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
+      { text: 'cat ./now/nwhoaportal.txt', typed: true, delay: 600 },
+      { text: '', delay: 80 },
+      { html: '<span class="accent">── currently building: <a href="https://nwhoaportal.com" target="_blank" rel="noopener">NW HOA Portal</a> ──</span>', delay: 40 },
+      { text: 'A licensed WA business helping Washington HOAs and condo associations meet', delay: 30 },
+      { text: 'WUCIOA (RCW 64.90) document-access and transparency requirements.', delay: 30 },
+      { text: '', delay: 60 },
+      { text: '  what we ship :  custom community websites with private document libraries,', delay: 30 },
+      { text: '                  admin dashboards, meeting notices, and access-coded resident areas', delay: 30 },
+      { text: '  who it\'s for :  WA HOA boards staring down the Jan 2028 full-applicability deadline', delay: 30 },
+      { text: '  why it works :  cheaper than a single compliance lawsuit; built around the actual', delay: 30 },
+      { text: '                  103-control framework, not generic SaaS', delay: 30 },
+      { html: '  &rarr; <a href="https://nwhoaportal.com" target="_blank" rel="noopener">nwhoaportal.com</a> &mdash; plans from $69/mo, free WUCIOA self-assessment checklist', delay: 40 },
+      { text: '', delay: 900 },
+
+      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
+      { text: 'open /blog', typed: true, delay: 600 },
+      { text: '', delay: 80 },
+      { text: '── latest writing ──────────────────────────────────────────────', delay: 30 },
+      { html: '  [05/2026]  <a href="/blog/clipboard-datacenter.html">I got into your datacenter with a clipboard</a>', delay: 40 },
+      { html: '  [04/2026]  <a href="/blog/fourdollarvpn-blog.html">FourDollarVPN &mdash; a personal VPN for the price of a coffee</a>', delay: 40 },
+      { html: '  [03/2026]  <a href="/blog/forkoff-blog-post.html">Meet ForkOff, the GitHub backup you forget is running</a>', delay: 40 },
+      { html: '  [03/2026]  <a href="/blog/you-dont-own-anything-blog-post.html">You don\'t own anything &mdash; here\'s how to fix that</a>', delay: 40 },
+      { text: '', delay: 80 },
+      { html: '  &rarr; full archive: <a href="/blog/"><span class="accent">wescastle.com/blog</span></a>', delay: 60 },
+      { text: '', delay: 900 },
+
+      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
+      { text: 'contact --short', typed: true, delay: 600 },
+      { text: '', delay: 80 },
+      { html: '  email   :  <a href="mailto:wes@wescastle.com">wes@wescastle.com</a>', delay: 30 },
+      { html: '  github  :  <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">@SkyzFallin</a>', delay: 30 },
+      { html: '  blog    :  <a href="/blog/">wescastle.com/blog</a>', delay: 30 },
+      { text: '  LFG     :  pentests, social engineering ops, weird infra problems, side quests', delay: 30 },
+      { text: '', delay: 1200 },
+
+      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
+      { text: '', delay: 4500 }
+    ];
+
+    let cmdIndex = 0;
+    let charIndex = 0;
+    let loopCount = 0;
+
+    // Auto-scroll only when the user is already pinned to the bottom.
+    // If they scroll up, we leave them alone so they can read or click links;
+    // if they scroll back down to within ~12px of the bottom, auto-scroll resumes.
+    let stickToBottom = true;
+    const SCROLL_EPSILON = 12;
+
+    function isAtBottom() {
+      return output.scrollHeight - output.clientHeight - output.scrollTop <= SCROLL_EPSILON;
+    }
+
+    function maybeScrollToBottom() {
+      if (stickToBottom) {
+        output.scrollTop = output.scrollHeight;
+      }
+    }
+
+    output.addEventListener('scroll', () => {
+      stickToBottom = isAtBottom();
+    }, { passive: true });
+
+    // Wheel / touch up should immediately disengage auto-scroll.
+    output.addEventListener('wheel', (e) => {
+      if (e.deltaY < 0) stickToBottom = false;
+    }, { passive: true });
+
+    function appendBlockHTML(html) {
+      const line = document.createElement('div');
+      line.className = 'line';
+      line.innerHTML = html;
+      output.appendChild(line);
+      maybeScrollToBottom();
+    }
+
+    function appendBlockText(text) {
+      const line = document.createElement('div');
+      line.className = 'line';
+      line.textContent = text;
+      output.appendChild(line);
+      maybeScrollToBottom();
+    }
+
+    function ensureTypingTarget() {
+      // The most recent line is where typed characters land.
+      // If there is no last line, create one.
+      let last = output.lastElementChild;
+      if (!last) {
+        last = document.createElement('div');
+        last.className = 'line';
+        output.appendChild(last);
+      }
+      return last;
+    }
+
+    function typeCommand() {
+      if (cmdIndex >= commands.length) {
+        cmdIndex = 0;
+        loopCount++;
+        if (loopCount >= 4) {
+          output.innerHTML = '';
+          loopCount = 0;
+        }
+        setTimeout(typeCommand, 2500);
+        return;
+      }
+
+      const cmd = commands[cmdIndex];
+
+      if (cmd.typed) {
+        const target = ensureTypingTarget();
+        if (charIndex < cmd.text.length) {
+          target.append(cmd.text[charIndex]);
+          charIndex++;
+          maybeScrollToBottom();
+          setTimeout(typeCommand, 55 + Math.random() * 90);
+        } else {
+          // Finished typing this command — start a fresh line for the next output.
+          const nextLine = document.createElement('div');
+          nextLine.className = 'line';
+          output.appendChild(nextLine);
+          charIndex = 0;
+          cmdIndex++;
+          setTimeout(typeCommand, cmd.delay || 100);
+        }
+        return;
+      }
+
+      // noBreak prompts get inlined into a fresh line that the next typed command will append to.
+      if (cmd.noBreak) {
+        const line = document.createElement('div');
+        line.className = 'line';
+        line.innerHTML = cmd.html || cmd.text;
+        output.appendChild(line);
+        maybeScrollToBottom();
+        cmdIndex++;
+        setTimeout(typeCommand, cmd.delay || 50);
+        return;
+      }
+
+      if (cmd.html !== undefined) {
+        appendBlockHTML(cmd.html);
+      } else {
+        appendBlockText(cmd.text);
+      }
+      cmdIndex++;
+      setTimeout(typeCommand, cmd.delay || 50);
+    }
+
+    setTimeout(typeCommand, 400);
+  </script>
+</body>
+</html>

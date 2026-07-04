@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Got Into Your Datacenter With a Clipboard | WesCastle Blog</title>
+<meta name="description" content="A field-notes account of physical penetration testing — clipboards, business-casual pretexts, $40 of hardware, wireless drop boxes in open Ethernet ports, and the part nobody talks about: leaving every site on good terms.">
+<meta property="og:title" content="I Got Into Your Datacenter With a Clipboard">
+<meta property="og:description" content="A field-notes account of physical penetration testing — and the part nobody talks about: leaving every site on good terms, pass or fail.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://wescastle.com/blog/clipboard-datacenter">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e12;
+    --surface: #13161c;
+    --border: #252a34;
+    --border-hover: #3a4150;
+    --text: #e0e4ec;
+    --text-muted: #8891a4;
+    --text-faint: #5a6378;
+    --accent: #f97316;
+    --accent-glow: rgba(249,115,22,0.15);
+    --accent-soft: rgba(249,115,22,0.08);
+    --warm: #e8c547;
+    --blue: #3b82f6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.75; -webkit-font-smoothing:antialiased; }
+
+  /* ── Site Header ── */
+  .site-header { padding:1.75rem 2rem; max-width:860px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; }
+  .brand { display:inline-flex; align-items:center; gap:0.6rem; text-decoration:none; color:var(--text); transition:color 0.2s; }
+  .brand:hover { color:#fff; }
+  .brand-mark { width:26px; height:26px; padding:4px 5px; border:1px solid var(--border); border-radius:6px; color:var(--accent); background:var(--surface); transition:border-color 0.2s, transform 0.3s; }
+  .brand:hover .brand-mark { border-color:var(--accent); transform:translateY(-1px); }
+  .brand-name { font-family:'JetBrains Mono', monospace; font-weight:400; font-size:0.95rem; letter-spacing:0.04em; }
+  .brand-name .dot { color:var(--accent); }
+  .site-nav { display:flex; align-items:center; gap:0.35rem; }
+  .site-nav a { font-size:0.82rem; font-weight:500; color:var(--text-muted); text-decoration:none; padding:0.4rem 0.75rem; border-radius:6px; transition:color 0.2s, background 0.2s; }
+  .site-nav a:hover { color:var(--text); background:var(--surface); }
+  .header-rule { width:100%; max-width:860px; height:1px; background:var(--border); margin:0 auto; }
+
+  /* ── Hero ── */
+  .hero { position:relative; padding:5rem 2rem 4rem; overflow:hidden; border-bottom:1px solid var(--border); }
+  .hero::before { content:''; position:absolute; top:-40%; left:50%; transform:translateX(-50%); width:800px; height:800px; background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%); pointer-events:none; }
+  .hero-inner { max-width:780px; margin:0 auto; position:relative; z-index:1; }
+  .back-link { display:inline-flex; align-items:center; gap:0.4rem; font-family:'JetBrains Mono', monospace; font-size:0.78rem; font-weight:500; color:var(--text-muted); text-decoration:none; margin-bottom:1.5rem; transition:color 0.2s, gap 0.2s; }
+  .back-link:hover { color:var(--accent); gap:0.6rem; }
+  .back-link svg { width:12px; height:12px; }
+
+  .meta { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-muted); margin-bottom:1.5rem; font-weight:500; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+  .meta .tag { background:var(--accent); color:var(--bg); padding:0.2em 0.65em; border-radius:3px; font-size:0.7rem; font-weight:600; letter-spacing:0.08em; }
+  h1 { font-family:'DM Serif Display',serif; font-size:clamp(2.2rem,5vw,3.4rem); line-height:1.15; color:#fff; margin-bottom:1.25rem; font-weight:400; }
+  h1 .highlight { color:var(--accent); }
+  .subtitle { font-size:1.15rem; color:var(--text-muted); max-width:600px; line-height:1.7; }
+  .hero-actions { margin-top:1.4rem; font-size:0.95rem; font-weight:400; display:flex; gap:1rem; flex-wrap:wrap; align-items:center; }
+  .hero-actions a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(249,115,22,0.3); transition:border-color 0.2s; }
+  .hero-actions a:hover { border-color:var(--accent); }
+  .hero-actions .sep { color:var(--text-faint); }
+
+  /* ── Article ── */
+  .article { max-width:780px; margin:0 auto; padding:3.5rem 2rem 5rem; }
+  .article h2 { font-family:'DM Serif Display',serif; font-size:1.65rem; color:#fff; margin:3rem 0 1rem; font-weight:400; }
+  .article h2:first-of-type { margin-top:0; }
+  .article h3 { font-family:'Outfit',sans-serif; font-size:1.05rem; color:#fff; margin:2rem 0 0.85rem; font-weight:600; letter-spacing:0.01em; }
+  .article p { margin-bottom:1.35rem; font-size:1.04rem; }
+  .article ul, .article ol { margin:0 0 1.6rem 1.5rem; }
+  .article li { margin-bottom:0.6rem; font-size:1.02rem; line-height:1.7; }
+  .article a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(249,115,22,0.3); transition:border-color 0.2s; }
+  .article a:hover { border-color:var(--accent); }
+  .article strong { font-weight:500; color:#fff; }
+  .article em { color:var(--text); font-style:italic; }
+  .article code { font-family:'JetBrains Mono',monospace; font-size:0.88em; background:var(--surface); border:1px solid var(--border); padding:0.15em 0.4em; border-radius:4px; }
+
+  .callout { background:var(--accent-soft); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:1.2rem 1.5rem; margin:2rem 0; }
+  .callout p { margin:0; font-size:0.95rem; color:var(--text); }
+  .callout-label { display:block; font-size:0.7rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:0.4rem; }
+
+  .pull-quote { border-left:3px solid var(--border); padding:0.75rem 1.5rem; margin:2rem 0; font-style:italic; color:var(--text-muted); font-size:1.08rem; line-height:1.7; }
+
+  .article figure { margin:2.25rem 0; }
+  .article figure img { width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border); box-shadow:0 8px 30px rgba(0,0,0,0.4); }
+  .article figcaption { margin-top:0.7rem; font-size:0.82rem; color:var(--text-muted); text-align:center; font-style:italic; }
+
+  .article-footer { border-top:1px solid var(--border); margin-top:3rem; padding-top:1.5rem; font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
+
+  /* ── Site Footer ── */
+  .site-footer { max-width:860px; margin:0 auto; padding:0 2rem 3rem; }
+  .footer-grid { display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:3rem; padding:2.5rem 0 2rem; border-top:1px solid var(--border); }
+  .footer-col h4 { font-family:'JetBrains Mono', monospace; font-size:0.7rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:1rem; }
+  .footer-col a { display:block; font-size:0.88rem; color:var(--text-muted); text-decoration:none; padding:0.25rem 0; transition:color 0.2s, transform 0.2s; }
+  .footer-col a:hover { color:var(--text); transform:translateX(2px); }
+  .footer-brand .brand { margin-bottom:0.85rem; }
+  .footer-tag { font-size:0.85rem; color:var(--text-muted); line-height:1.55; max-width:280px; }
+  .footer-rule { width:100%; height:1px; background:var(--border); margin-bottom:1.25rem; }
+  .footer-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; font-size:0.78rem; color:var(--text-faint); }
+  .footer-bottom a { color:var(--text-muted); text-decoration:none; border-bottom:1px dotted var(--border-hover); transition:color 0.2s, border-color 0.2s; }
+  .footer-bottom a:hover { color:var(--text); border-bottom-color:var(--text-muted); }
+  .footer-prompt { font-family:'JetBrains Mono', monospace; color:var(--text-faint); }
+  .footer-prompt .prompt-symbol { color:var(--accent); }
+
+  @media (max-width:600px) {
+    .site-header { padding:1.25rem; flex-wrap:wrap; gap:0.75rem; }
+    .site-nav a { padding:0.35rem 0.6rem; font-size:0.78rem; }
+    .hero { padding:3rem 1.25rem 2.5rem; }
+    .article { padding:2.5rem 1.25rem 3rem; }
+    .site-footer { padding:0 1.25rem 2rem; }
+    .footer-grid { grid-template-columns:1fr; gap:2rem; padding-top:2rem; }
+    .footer-bottom { font-size:0.72rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="5 7 9 12 5 17"/>
+      <line x1="13" y1="19" x2="20" y2="19"/>
+    </svg>
+    <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="https://wescastle.com">Home</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="header-rule"></div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <a href="/blog/" class="back-link">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13 8H3M7 12L3 8l4-4"/></svg>
+      All posts
+    </a>
+    <div class="meta">
+      <span class="tag">Field Notes</span>
+      <span>May 5, 2026</span>
+      <span>&middot;</span>
+      <span>9 min read</span>
+    </div>
+    <h1>I Got Into Your <span class="highlight">Datacenter</span> With a Clipboard.</h1>
+    <p class="subtitle">A collared button-up, dark slacks, polished leather shoes, a clipboard, and about forty bucks of hardware will out-perform a six-figure firewall almost every time. Here's how a physical pentest actually goes — and the part nobody writes about: how you leave.</p>
+  </div>
+</header>
+
+<article class="article">
+
+  <h2>The Cheapest Tool in the Kit</h2>
+
+  <p>People expect a physical pentester to look like the movies. Black hoodie, black gloves, lockpicks in a velvet roll, a USB Rubber Ducky tucked into a sleeve. The truth is more boring and a lot more effective.</p>
+
+  <p>The single most powerful tool in my kit is a clipboard. The second is what I'm wearing: a tucked-in collared shirt, dark slacks, polished leather shoes, and a thin laptop bag over one shoulder. Plain, professional, forgettable. It costs less than a tank of gas, and it lets me walk past more controls than any zero-day ever has.</p>
+
+  <p>The shoes do more work than people give them credit for. Nice leather shoes — actually polished, not just clean — quietly signal that the person wearing them has somewhere to be and is being paid by someone who cares how they look. Receptionists and security guards check shoes without realizing they're doing it. Scuffed sneakers and a button-up read as <em>kid running an errand</em>; polished leather and the same shirt read as <em>the vendor my boss told me to expect</em>. It's a five-minute investment with a buffing cloth that buys you ten minutes of nobody asking who you are.</p>
+
+  <p>The reason is simple: humans pattern-match on roles before they pattern-match on faces. A clipboard plus business-casual dress plus the right kind of bored expression reads as <em>vendor here for a scheduled job</em>, and a vendor reads as <em>someone else's problem</em>. Nobody wants to be the receptionist who challenged the printer tech and got chewed out for slowing down a billable visit. So they wave me through.</p>
+
+  <p>Business casual also does something a hi-vis vest can't: once I'm past the lobby, it lets me <em>blend</em>. Most of the people I'm walking past on the way to the second floor are dressed exactly like me. Field techs from the kinds of companies I'm impersonating — printer repair, copier maintenance, low-voltage cabling, MSP onsite engineers — almost always show up in business casual rather than uniforms. The wardrobe doesn't just sell the entry; it sells everything that happens after it.</p>
+
+  <p>The rest of the props budget rounds out at about forty dollars: a generic vendor-style badge in a clear holder (printed on cardstock and clipped to the laptop bag's strap), a small zippered tool case in the bag, a microfiber cloth in a side pocket — printer techs are always wiping something down — and a phone in hand for "checking the dispatch."</p>
+
+  <p>One thing in the bag isn't a costume piece: a <strong>Flipper Zero</strong>. It's a pocket-sized multitool that handles 125 kHz and 13.56 MHz RFID, sub-GHz radios, NFC, IR, and BadUSB out of one device. On a physical job it earns its keep half a dozen ways: reading and cloning the cheap 125 kHz badges still on a depressing number of doors, sniffing parking-gate fobs while I sit in my car doing recon, capturing the IR remote for a conference-room display so I can look like I belong while futzing with it, and quietly logging the Bluetooth Low Energy devices broadcasting in the lobby &mdash; phones, AirPods, and fitness trackers routinely advertise their owner's first name in the device label (<em>"Sarah's iPhone"</em>), which cross-references nicely with the employee list I pulled from LinkedIn during recon. It looks like a Tamagotchi and behaves like a small Faraday-busting Swiss Army knife. None of what it does is exotic on its own — it just collapses six tools into one device that fits in a shirt pocket.</p>
+
+  <p>Riding in the same bag is a <strong>Raspberry Pi running Pwnagotchi</strong>. It sits there passively, listening for WPA/WPA2 four-way handshakes on whatever Wi-Fi is around — corporate, guest, neighbor, parking lot. By the time I leave the building, it's quietly collected a stack of <code>.pcap</code> files I can take home and feed to hashcat. It pairs nicely with the wifi-pentest deliverable: a list of which corporate SSIDs cracked, in what time, on what hardware. No active probing, no deauth, nothing that would trip a half-decent WIDS — just a small device politely eavesdropping on the air.</p>
+
+  <figure>
+    <img src="loadout.png" alt="Physical pentest loadout: laptop, Flipper Zero, Anker battery pack, charging brick with Ethernet cables, Raspberry Pi running Pwnagotchi, a TP-Link AC750 travel router, and a clipboard with a printer/copier Work Order template." loading="lazy">
+    <figcaption>The loadout for a typical engagement. Laptop and battery for runtime, Flipper Zero for RFID/IR/sub-GHz/NFC, a Raspberry Pi running Pwnagotchi for passive Wi-Fi handshake capture, a TP-Link travel router (visual reference only — see below), and the clipboard with a printer/copier Work Order on top.</figcaption>
+  </figure>
+
+  <h3>The Work Order</h3>
+
+  <p>The single highest-leverage piece of paper on the clipboard isn't a notepad — it's the work order. I print one for every engagement, and I don't go in without it.</p>
+
+  <p>The work order is a single sheet that looks exactly like the kind of dispatch ticket a real field tech would carry: company logo at the top, the target's name and address pre-filled, a scheduled arrival window that brackets the time I plan to walk in, a short work description (<em>"Quarterly maintenance — Konica Minolta C658, 2nd-floor copy room"</em>), a dispatcher phone number, and a signature block at the bottom for the on-site contact. I usually pose as a tech from a real, locally-known company — a regional printer repair outfit, a low-voltage cabling shop, an HVAC contractor, anyone whose vans the receptionist has actually seen in the parking lot. <em>Familiar</em> beats <em>plausible</em> every time.</p>
+
+  <p>The reason this works isn't just the paper. It's that the paper gives the receptionist something to <em>do</em>. Humans don't trust strangers — but they do trust gestures. When somebody asks who I'm here for, I don't argue or explain. I rotate the clipboard ninety degrees and hand it across the counter. Now they're holding the prop. They glance at the company name, see the address matches their building, and the cognitive load of challenging me has just doubled. Most of the time they hand it back, point at the elevator, and ask if I need them to call anyone up. I say <em>"Nah, they know I'm coming, I'll just head up,"</em> and we're done.</p>
+
+  <p>If they do read the ticket carefully, that's fine — every detail on it has to survive scrutiny. The dispatcher number rings to a burner that I answer in character. The company name is real. The work description matches equipment that actually lives in the building (this is a recon find, not a guess). The signature block at the bottom is the closer: when I leave, I ask the on-site contact to "sign off so I can close the ticket." They almost always do, because they've been signing maintenance tickets for their entire career and the muscle memory is automatic. That signature, photographed, becomes a finding in the report.</p>
+
+  <div class="callout">
+    <span class="callout-label">Grab the template</span>
+    <p>I keep a metadata-scrubbed Work Order template (DOCX + PDF) in my public templates repo, alongside a few other pentest and audit docs. Take it, edit it, use it on authorized engagements: <a href="https://github.com/SkyzFallin/Templates" target="_blank" rel="noopener">github.com/SkyzFallin/Templates</a>.</p>
+  </div>
+
+  <h2>Recon You Can Do From a Coffee Shop</h2>
+
+  <p>The fun part of this work is that almost all of it happens before I ever touch the building.</p>
+
+  <p>I sit in a coffee shop two blocks away with a laptop and burn an afternoon learning more about the target than most of their employees know. Google Maps Street View gives me door types, badge readers, lobby layout, and the location of the smoking area. LinkedIn gives me employee names, lanyard colors, and which reception desk fronts which floor. Job postings reveal which printer brand they use, which ticketing system they buy, and what their MSP's name probably is. Quarterly investor reports occasionally tell me which rooms are climate-controlled.</p>
+
+  <p>Then I sit somewhere that overlooks the front entrance and just watch for an hour. Smoke breaks cluster between 9:50 and 10:10 and again around 2:30. Delivery vans show up around the same windows on the same days. The receptionist takes lunch from 12:15 to 12:45 — and there's almost never a backup. Late afternoon, the door props open with a small wedge for the mail courier and stays propped for forty seconds longer than it should.</p>
+
+  <p>None of this is illegal. None of it costs anything. By the time I walk in, I'm not improvising — I'm executing.</p>
+
+  <div class="callout">
+    <span class="callout-label">Engagement rules</span>
+    <p>Everything in this post happened on authorized engagements with signed scope, a get-out-of-jail letter in my pocket, and at least one named point of contact who knew I was coming. Doing any of it without that paperwork is not pentesting. It's a felony.</p>
+  </div>
+
+  <h2>The Walk-In</h2>
+
+  <p>The favorite entry isn't the one with the badge reader. It's the smoke door. Tailgating a smoker who is already irritated about getting back to a stuck spreadsheet is one of the most reliable techniques in the field. They don't want to hold the door for you and they especially don't want to challenge you. They want their fingers on a keyboard. So they hold the door, pretend not to look at you, and walk off.</p>
+
+  <p>If the smoke door doesn't work, the lobby usually does. The line that has worked for me more times than I can count is, <em>"Hey — I'm here for the printer. Front desk said to head up, second floor?"</em> The receptionist is going to do one of two things: nod and point, or pick up a phone to verify. Nine out of ten times, they nod. The tenth time, I have a story ready about being early and offer to wait. Either outcome is fine. The point is to never look like waiting bothers you.</p>
+
+  <p>Once I'm through the lobby, I walk like I belong. Confident pace, eye contact with nobody, clipboard up. I pause occasionally to write something down, because someone writing on a clipboard is busy and busy people don't get stopped.</p>
+
+  <h2>Once You're Inside</h2>
+
+  <p>The first thing I do is stop being impressed with myself, because the inside of an office is where most pentesters get cocky and burn the engagement. The clock is now running and every minute I'm in the building is a minute someone might recognize that I don't.</p>
+
+  <p>Priorities, in order:</p>
+
+  <ol>
+    <li><strong>Photographs.</strong> Whiteboards. Sticky notes on monitors. Network diagrams taped inside server-room doors. Printer queues with badge IDs on them. The phone-list pinned next to the break-room microwave. None of this is glamorous. All of it shows up in the report.</li>
+    <li><strong>Open ports.</strong> I'm looking for live RJ45 jacks behind unused desks, in conference rooms, and in the back of break-room TVs. The IT closet on the second floor is great if I can reach it, but the unused cubicle next to the copy room is almost as good and far less likely to be noticed.</li>
+    <li><strong>USB drops.</strong> A handful of cheap drives, labeled things like <em>"2026 Bonus Plan"</em> or <em>"Layoff List - DO NOT FORWARD,"</em> get left near the printer, in the kitchen, and one taped to the underside of a conference-room table. The pickup rate is depressing.</li>
+    <li><strong>Server room.</strong> If the door is propped — and it is, more often than you'd believe, usually with a fire extinguisher because the room runs hot — I walk in, take photos, and walk out. I don't need to touch anything. The photo of the open door, with timestamp, is the finding.</li>
+  </ol>
+
+  <h3>The Drop Box</h3>
+
+  <p>The single highest-value thing I plant is also the smallest: a battery-backed wireless access point, configured to mesh out to a 4G hotspot in my car or to call home over a cellular module of its own. I plug it into a live Ethernet jack behind a desk nobody uses, tuck it under a power strip, and walk away.</p>
+
+  <p>From the parking lot, I now have a tunnel into the internal network that doesn't traverse the corporate firewall, doesn't show up in their VPN logs, and persists for as long as the box has power and the jack stays alive. From a pentest perspective, this is the prize. Initial physical access turns into ongoing remote access, and ongoing remote access turns into a much more interesting engagement than "I walked in." Every internal pivot I do from that point on looks, to their SOC, like traffic from inside the building — because it is.</p>
+
+  <p>The picture most people have in their head for a drop box is something like a <strong>TP-Link AC750</strong> travel router — the thirty-dollar palm-sized thing flashed with OpenWrt that fits behind a power strip. I'm referencing it here because it's the easiest way to visualize the form factor and the attack: small, USB-powered, indistinguishable from any other lump of plastic on a desk. <em>I do not recommend actually using one for this work.</em> Recent US government guidance has scrutinized routers manufactured by certain foreign vendors over supply-chain and firmware-trust concerns, and TP-Link specifically has been the subject of ongoing federal review. Bringing one onto a regulated client's network puts an awkward sentence in the report and a worse one in the conversation that follows.</p>
+
+  <p>The right answer is one of two things, and both are vastly preferable to a TP-Link in a sensitive environment. The first is a <strong>custom Raspberry Pi build</strong>: a Pi 4 (or Compute Module 4) with a USB-Ethernet adapter and a Quectel cellular modem in a small 3D-printed project box. You control every line of the firmware, every package on the disk, and every byte that leaves the box. For engagements where the supply-chain question matters — government, defense, financial, healthcare — this is the cleanest answer.</p>
+
+  <p>The second is <strong>Hak5's purpose-built lineup</strong>. US-designed, well-documented, built specifically for this work, and trusted by enough red teams that a finding referencing one doesn't raise eyebrows the way "we plugged in a foreign-made consumer router" will. Pick from:</p>
+
+  <ul>
+    <li><strong>LAN Turtle</strong> — disguised as a USB Ethernet adapter. Plugs into the back of a desktop's USB + RJ45 jacks; the user just sees a working network connection. Probably the best disguise of any of these for desk-level drops. ~$50.</li>
+    <li><strong>Packet Squirrel Mark II</strong> — sits inline on an Ethernet run, runs payloads, USB powered. Good for tap-and-implant in one device.</li>
+    <li><strong>Shark Jack</strong> — battery-powered, plugs into an Ethernet jack, runs a payload, walks away. More for quick recon than persistent access.</li>
+    <li><strong>Bash Bunny / Key Croc</strong> — different threat model (USB HID), but worth knowing about for keystroke-injection scenarios where you can briefly touch a workstation.</li>
+  </ul>
+
+  <p>The defense is the same regardless of what hardware the attacker brings: 802.1X on every port, MAC filtering as a tripwire, monitoring for unexpected DHCP leases, and physical port-disable on jacks that aren't in use.</p>
+
+  <div class="callout">
+    <span class="callout-label">Why this works</span>
+    <p>Most networks I've tested have hardened the internet edge to a fault and left the inside flat. A device plugged into an internal jack often gets a DHCP lease, a DNS server, internal name resolution, and unfiltered access to the same resources a sales rep's laptop sees. Once inside, lateral movement is rarely the hard part.</p>
+  </div>
+
+  <h2>The Part Nobody Writes About: How You Leave</h2>
+
+  <p>Most blog posts about physical pentesting end at the photo of the server room. Mine doesn't, because the most important hour of the engagement happens after the work is done.</p>
+
+  <p>I always — always — exit on good terms. Pass or fail. Whether I sailed in unchallenged or got stopped at the lobby and had to produce my letter, the exit looks the same: I find the on-site point of contact, shake hands with anyone I challenged or who challenged me, thank the front desk by name, and leave a business card with the IT lead. If somebody caught me, they get a sincere "good catch" and a few minutes of my time before I leave. If somebody didn't, they get the same warmth — because none of this is about embarrassing them.</p>
+
+  <p>There are three reasons this matters, and only one of them is about being a decent person.</p>
+
+  <h3>1. Multi-site engagements depend on it.</h3>
+
+  <p>A lot of these jobs are not one office. They're three. Or twelve. If I storm out of the Tacoma branch with everyone whispering about the weird printer-repair guy who wandered the wrong floors, that story reaches the Spokane and Boise branches by Friday afternoon. The next visit is contaminated before I park the car. By treating every exit as if I'll be back next week, I keep the surprise of the engagement alive across the rest of the scope.</p>
+
+  <h3>2. Cops are slow to call back.</h3>
+
+  <p>I carry a get-out-of-jail letter, and it works. But "works" means "the police will eventually verify it and let me go." It does not mean "no police will arrive." A clean exit, with a smile and a card and a clear handoff to the on-site contact, dramatically reduces the odds that anyone calls 911 in the first place. That saves the engagement, the police's afternoon, and my evening.</p>
+
+  <h3>3. The findings land softer.</h3>
+
+  <p>If the team that just got beat up by a stranger in a button-down also got a handshake and an honest debrief from that same stranger, the report I send next week reads as collaboration. If they got the silent treatment and a slammed door, every finding reads as humiliation. I want the IT team to defend my report internally as a roadmap, not bury it as an attack. Walking out warmly is what makes that possible.</p>
+
+  <p class="pull-quote">The job is to find the holes. The craft is to leave the people who own those holes glad they hired you.</p>
+
+  <h2>What Actually Fixes This</h2>
+
+  <p>Defenders ask me what to buy after one of these engagements. Almost nothing on the answer is a product.</p>
+
+  <ul>
+    <li><strong>Challenge culture.</strong> The cheapest, hardest control in this whole post. Train every employee to ask, with a smile, <em>"Hey — who are you here to see?"</em> and to wait for an answer. That single sentence ends 80% of physical engagements at the lobby. Reward the ones who use it. Make it a story they tell, not a confrontation they avoid.</li>
+    <li><strong>Visitor sign-in that actually verifies.</strong> Not a tablet that prints a sticker. A real callback to the host before the visitor leaves the lobby. If the host doesn't pick up, the visitor doesn't move.</li>
+    <li><strong>802.1X on every wired port.</strong> If a strange device plugs in and doesn't speak the protocol, it gets a quarantine VLAN with nothing on it. This kills the drop-box attack outright.</li>
+    <li><strong>Disable unused jacks at the patch panel.</strong> Empty cubicles do not need live ports. Half-empty offices have dozens of these.</li>
+    <li><strong>Physically secure the server room.</strong> If the door props, fix the airflow. If the airflow is fine, fix the door. Pick one.</li>
+    <li><strong>Badge print and color discipline.</strong> Don't put your logo, employee photos, or department color codes on public-facing employee profiles. You're handing me the prop list.</li>
+    <li><strong>Awareness training that isn't a 45-minute video.</strong> A ten-minute story about a real (sanitized) walk-in, told once a quarter by someone the staff actually knows, beats any e-learning module on the market.</li>
+  </ul>
+
+  <h2>Why This Matters</h2>
+
+  <p>The reason I write up engagements like this — and the reason I'd encourage every IT and security leader to commission one — is that most organizations have spent the last decade hardening the internet edge while leaving the front door wide open. The threat model has shifted. The cost of getting a person physically into your building has dropped to about forty dollars and an afternoon of recon. The defenders' tools have not kept pace.</p>
+
+  <p>The good news is that most of the fixes are free. Challenge culture, jack discipline, and a working visitor sign-in process will stop a clipboard-and-collared-shirt pentest cold. They'll also stop the next person who shows up with similar ideas and no get-out-of-jail letter.</p>
+
+  <h3>One More Thing: AI Isn't Taking This Job</h3>
+
+  <p>A lot of security work is quietly being chewed on by automation. Vulnerability scanning, log triage, code review, even initial recon — the tooling keeps getting better, and a lot of analyst-grade tasks are going to look very different in three years. Physical pentesting is not on that list.</p>
+
+  <p>You can't ship a model into a lobby. You can't have a language model read the receptionist's mood and decide whether to push or wait. You can't automate the moment when a security guard makes eye contact and you have to decide, in less than a second, whether to smile and keep walking or pull out the work order and engage. The job lives in pretexts, body language, the smell of the parking lot, the rhythm of a lunch crowd, and the quiet judgment call about which propped door is being watched on a camera that someone actually monitors. None of that is going into a context window any time soon.</p>
+
+  <p>AI is a fantastic <em>force multiplier</em> for the parts that surround the engagement — drafting work orders, scraping LinkedIn for org charts, summarizing recon, even rehearsing pretexts as a warm-up. I use it daily. But the engagement itself is, and will remain for the foreseeable future, a human walking into a building and reading the room. If you've been wondering whether physical-security testing is a discipline worth investing in: the half-life of this skill is much longer than most things on the security org chart.</p>
+
+  <p>If you read this far and recognized your own building somewhere in the description: that's the point. Get someone in there before someone gets in there.</p>
+
+  <p>The thing I keep coming back to, after a decade of doing this work, is that the people on the other side of the engagement aren't the enemy. The receptionist who waved me through is somebody's mom, working the front desk because the company hasn't staffed a real visitor-management process. The security guard who didn't challenge me is doing a job that pays barely above minimum wage to be the last line of defense for a million-dollar IT investment. The IT lead who finds out a stranger in a button-down spent forty minutes wandering their second floor isn't bad at their job — they're just one person trying to defend a building designed for convenience.</p>
+
+  <p>The story I tell in the debrief is never "look how I beat you." It's "look at what your building is asking of the people in it, and how little it gives them back." Most of the time, by the end of that conversation, the IT lead is the one writing down the fixes — and the receptionist is the one who tells the next person in a button-down to wait while they make a phone call. That's the win. The report is just the receipt.</p>
+
+  <div class="article-footer">
+    <span>By Wes Hardcastle &middot; WesCastle</span>
+    <span>Tags: physical security, pentesting, social engineering, red team, field notes</span>
+  </div>
+
+</article>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="5 7 9 12 5 17"/>
+          <line x1="13" y1="19" x2="20" y2="19"/>
+        </svg>
+        <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+      </a>
+      <p class="footer-tag">Offensive security, infrastructure ownership, and the stuff nobody tells you until it's too late.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
+      <a href="https://wescastle.com">Home</a>
+      <a href="/blog/">Blog</a>
+    </div>
+    <div class="footer-col">
+      <h4>Elsewhere</h4>
+      <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+      <a href="mailto:wes@wescastle.com">wes@wescastle.com</a>
+    </div>
+  </div>
+  <div class="footer-rule"></div>
+  <div class="footer-bottom">
+    <span class="footer-prompt"><span class="prompt-symbol">$</span> &copy; 2026 wescastle.com</span>
+  </div>
+</footer>
+
+</body>
+</html>

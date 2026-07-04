@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FourDollarVPN — A $4/month WireGuard VPN in One Command | WesCastle Blog</title>
+<meta name="description" content="FourDollarVPN spins up a personal WireGuard VPN on DigitalOcean in about 90 seconds, for about $4 a month. One command, no config files, no commercial provider you have to take at their word.">
+<meta property="og:title" content="FourDollarVPN">
+<meta property="og:description" content="Ninety seconds from nothing to a hardened personal WireGuard VPN on DigitalOcean, for about $4 a month. No config files, no SSH gymnastics, no commercial provider you have to take at their word.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://wescastle.com/blog/fourdollarvpn-blog">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e12;
+    --surface: #13161c;
+    --border: #252a34;
+    --border-hover: #3a4150;
+    --text: #e0e4ec;
+    --text-muted: #8891a4;
+    --text-faint: #5a6378;
+    --accent: #7dd35f;
+    --accent-glow: rgba(125,211,95,0.15);
+    --accent-soft: rgba(125,211,95,0.08);
+    --warm: #e8c547;
+    --blue: #3b82f6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.75; -webkit-font-smoothing:antialiased; }
+
+  /* ── Site Header ── */
+  .site-header {
+    padding: 1.75rem 2rem;
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: color 0.2s;
+  }
+  .brand:hover { color: #fff; }
+  .brand-mark {
+    width: 26px;
+    height: 26px;
+    padding: 4px 5px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+    background: var(--surface);
+    transition: border-color 0.2s, transform 0.3s;
+  }
+  .brand:hover .brand-mark {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .brand-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+  }
+  .brand-name .dot { color: var(--accent); }
+  .site-nav { display:flex; align-items:center; gap:0.35rem; }
+  .site-nav a {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .site-nav a:hover { color: var(--text); background: var(--surface); }
+  .site-nav a[aria-current="page"] {
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: calc(0.4rem - 1px) calc(0.85rem - 1px);
+  }
+  .header-rule {
+    max-width: 860px;
+    margin: 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--border) 20%, var(--border) 80%, transparent 100%);
+  }
+
+  /* ── Article Hero ── */
+  .hero { position:relative; padding:5rem 2rem 4rem; overflow:hidden; border-bottom:1px solid var(--border); }
+  .hero::before { content:''; position:absolute; top:-40%; left:50%; transform:translateX(-50%); width:800px; height:800px; background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%); pointer-events:none; }
+  .hero-inner { max-width:780px; margin:0 auto; position:relative; z-index:1; }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s, gap 0.2s;
+  }
+  .back-link:hover { color: var(--accent); gap: 0.6rem; }
+  .back-link svg { width: 12px; height: 12px; }
+
+  .meta { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-muted); margin-bottom:1.5rem; font-weight:500; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+  .meta .tag { background:var(--accent); color:var(--bg); padding:0.2em 0.65em; border-radius:3px; font-size:0.7rem; font-weight:600; letter-spacing:0.08em; }
+  h1 { font-family:'DM Serif Display',serif; font-size:clamp(2.2rem,5vw,3.4rem); line-height:1.15; color:#fff; margin-bottom:1.25rem; font-weight:400; }
+  h1 .highlight { color:var(--accent); }
+  .subtitle { font-size:1.15rem; color:var(--text-muted); max-width:600px; line-height:1.7; }
+  .hero-actions { margin-top:1.4rem; font-size:0.95rem; font-weight:400; display:flex; gap:1rem; flex-wrap:wrap; align-items:center; }
+  .hero-actions a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(125,211,95,0.3); transition:border-color 0.2s; }
+  .hero-actions a:hover { border-color:var(--accent); }
+  .hero-actions .sep { color:var(--text-faint); }
+
+  /* ── Article ── */
+  .article { max-width:780px; margin:0 auto; padding:3.5rem 2rem 5rem; }
+  .article h2 { font-family:'DM Serif Display',serif; font-size:1.65rem; color:#fff; margin:3rem 0 1rem; font-weight:400; }
+  .article h2:first-of-type { margin-top:0; }
+  .article h3 { font-family:'Outfit',sans-serif; font-size:1.05rem; color:#fff; margin:2rem 0 0.85rem; font-weight:600; letter-spacing:0.01em; }
+  .article p { margin-bottom:1.35rem; font-size:1.04rem; }
+  .article ul, .article ol { margin:0 0 1.6rem 1.5rem; }
+  .article li { margin-bottom:0.6rem; font-size:1.02rem; line-height:1.7; }
+  .article a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(125,211,95,0.3); transition:border-color 0.2s; }
+  .article a:hover { border-color:var(--accent); }
+  .article strong { font-weight:500; color:#fff; }
+  .article em { color:var(--text); font-style:italic; }
+  .article code { font-family:'JetBrains Mono',monospace; font-size:0.88em; background:var(--surface); border:1px solid var(--border); padding:0.15em 0.4em; border-radius:4px; }
+
+  .code-block { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.25rem 1.5rem; margin:1.5rem 0; overflow-x:auto; position:relative; }
+  .code-block::before { content:attr(data-label); position:absolute; top:0; right:0; background:var(--border); color:var(--text-muted); font-size:0.65rem; font-weight:500; text-transform:uppercase; letter-spacing:0.08em; padding:0.25em 0.7em; border-radius:0 7px 0 6px; }
+  .code-block code { font-family:'JetBrains Mono',monospace; font-size:0.88rem; line-height:1.85; color:var(--text); background:none; border:none; padding:0; display:block; white-space:pre; }
+  .code-block .cmd { color:var(--accent); }
+  .code-block .flag { color:var(--warm); }
+  .code-block .str { color:var(--blue); }
+  .code-block .cmt { color:var(--text-faint); }
+
+  .callout { background:var(--accent-soft); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:1.2rem 1.5rem; margin:2rem 0; }
+  .callout p { margin:0; font-size:0.95rem; color:var(--text); }
+  .callout-label { display:block; font-size:0.7rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:0.4rem; }
+
+  .pull-quote { border-left:3px solid var(--border); padding:0.75rem 1.5rem; margin:2rem 0; font-style:italic; color:var(--text-muted); font-size:1.08rem; line-height:1.7; }
+
+  .article-footer { border-top:1px solid var(--border); margin-top:3rem; padding-top:1.5rem; font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
+
+  /* ── Site Footer ── */
+  .site-footer {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem 3rem;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 3rem;
+    padding: 2.5rem 0 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .footer-col h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 1rem;
+  }
+  .footer-col a {
+    display: block;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.25rem 0;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .footer-col a:hover { color: var(--text); transform: translateX(2px); }
+  .footer-brand .brand { margin-bottom: 0.85rem; }
+  .footer-tag { font-size:0.85rem; color:var(--text-muted); line-height:1.55; max-width:280px; }
+  .footer-rule { width:100%; height:1px; background:var(--border); margin-bottom:1.25rem; }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text-faint);
+  }
+  .footer-bottom a {
+    color: var(--text-muted);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--border-hover);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .footer-bottom a:hover { color: var(--text); border-bottom-color: var(--text-muted); }
+  .footer-prompt { font-family:'JetBrains Mono', monospace; color:var(--text-faint); }
+  .footer-prompt .prompt-symbol { color:var(--accent); }
+
+  @media (max-width:600px) {
+    .site-header { padding: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+    .site-nav a { padding: 0.35rem 0.6rem; font-size: 0.78rem; }
+    .hero { padding:3rem 1.25rem 2.5rem; }
+    .article { padding:2.5rem 1.25rem 3rem; }
+    .site-footer { padding: 0 1.25rem 2rem; }
+    .footer-grid { grid-template-columns: 1fr; gap: 2rem; padding-top: 2rem; }
+    .footer-bottom { font-size: 0.72rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="5 7 9 12 5 17"/>
+      <line x1="13" y1="19" x2="20" y2="19"/>
+    </svg>
+    <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="https://wescastle.com">Home</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="header-rule"></div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <a href="/blog/" class="back-link">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13 8H3M7 12L3 8l4-4"/></svg>
+      All posts
+    </a>
+    <div class="meta">
+      <span class="tag">Infrastructure</span>
+      <span>April 17, 2026</span>
+      <span>&middot;</span>
+      <span>7 min read</span>
+      <span>&middot;</span>
+      <span>Updated for v1.0.11</span>
+    </div>
+    <h1>Meet <span class="highlight">FourDollarVPN</span>.</h1>
+    <p class="subtitle">Ninety seconds from nothing to a hardened personal WireGuard VPN on DigitalOcean, for about $4 a month. No config files, no SSH gymnastics, no commercial provider you have to take at their word.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/SkyzFallin/FourDollarVPN" target="_blank" rel="noopener">View on GitHub</a>
+      <span class="sep">&middot;</span>
+      <a href="#try-it">Install in 90 seconds</a>
+    </div>
+  </div>
+</header>
+
+<article class="article">
+
+  <h2>The Story Behind This</h2>
+
+  <p>I built FourDollarVPN because every time I wanted a personal VPN, I hit the same wall: spin up a server, SSH in, install WireGuard, edit config files, fight with the firewall, generate keys, copy them around, then debug why the tunnel won't come up. It's the kind of task that takes ten minutes if you've done it a hundred times &#x2014; and an entire afternoon if you haven't.</p>
+
+  <p>Meanwhile the alternative &#x2014; paying a commercial VPN provider &#x2014; means handing your traffic to a company that might be logging it, might be owned by someone you've never heard of, and might be quietly compromised the next time their shared infrastructure gets popped. Several have been caught lying about their no-log policies. A significant share of the popular "privacy" VPNs are quietly owned by holding companies in jurisdictions with opaque data-handling laws.</p>
+
+  <p>FourDollarVPN collapses the do-it-yourself path into one command:</p>
+
+  <div class="code-block" data-label="bash">
+    <code><span class="cmd">fourdollarvpn</span> setup</code>
+  </div>
+
+  <p>About 90 seconds later, you have a hardened WireGuard server running on DigitalOcean and a <code>.conf</code> file (plus a QR code) ready to import into the WireGuard client on any device.</p>
+
+  <h2>What FourDollarVPN Actually Does</h2>
+
+  <p>When you run <code>fourdollarvpn setup</code>, it walks through nine steps with a live progress bar showing the current step, elapsed time, and step counter:</p>
+
+  <ol>
+    <li>Creates a small Ubuntu 24.04 droplet on DigitalOcean (~$4/month, size <code>s-1vcpu-512mb-10gb</code>)</li>
+    <li>Tags the droplet <code>fourdollarvpn</code> at creation so later commands identify it by tag rather than guessing from its name</li>
+    <li>Connects over SSH using a freshly generated Ed25519 key. The public half is removed from your DigitalOcean account the moment it's served its purpose (DO bakes it into the droplet's <code>authorized_keys</code> once, at create time). The private half is persisted locally, indexed by the droplet's ID &#x2014; so if DO ever recycles an IP to a different droplet, the CLI refuses to trust the stranger on the other end.</li>
+    <li>Installs WireGuard, generates server keys, and configures the interface</li>
+    <li>Locks down the firewall &#x2014; only SSH (22/tcp) and WireGuard (51820/udp) are open</li>
+    <li>Installs <code>fail2ban</code> (5 failed logins = 1&nbsp;hour ban) and disables SSH password authentication outright</li>
+    <li>Enables <code>unattended-upgrades</code> so security patches land automatically &#x2014; <em>with</em> conditional auto-reboot at 04:00 UTC on days a reboot is actually required (a globally-quiet window, typically once every week or two when a kernel lands)</li>
+    <li>Kicks off a full <code>apt upgrade</code> in the background (your VPN works during it)</li>
+    <li>Generates your client config <strong>locally on your machine</strong> &#x2014; the private key never touches the server</li>
+    <li>Drops a <code>.conf</code> file and an SVG QR code in your working directory, filenames tagged with the server IP and creation time so nothing silently overwrites anything</li>
+  </ol>
+
+  <p>Total time typically lands between 60 and 90 seconds.</p>
+
+  <h2>Adding More Devices</h2>
+
+  <p>Want your VPN on your phone too? After setup, run:</p>
+
+  <div class="code-block" data-label="bash">
+    <code><span class="cmd">fourdollarvpn</span> add-client <span class="flag">--name</span> phone <span class="flag">--open-qr</span></code>
+  </div>
+
+  <p>A QR code pops up in your browser. Open the WireGuard app on your phone, scan, done. The new peer is added to the live WireGuard interface without a restart &#x2014; existing clients stay connected.</p>
+
+  <p>The <code>--name</code> flag is new in v1.0.10 and optional. If you pass one, it's stored as a comment above the peer block on the server (WireGuard ignores comments, so every machine managing the droplet sees the same names). It shows up in <code>fourdollarvpn list-clients</code>, and <code>fourdollarvpn remove-client phone</code> revokes it directly &#x2014; no more guessing which opaque public-key prefix is the old phone you want to kill. The generated filename also carries the name, so <code>fourdollarvpn-client-phone-10-66-66-3-14220417.conf</code> is self-explanatory when you come back to it three months later.</p>
+
+  <p>You can have up to 253 clients per server. Each one gets its own keypair generated locally, so compromising one device doesn't compromise the rest.</p>
+
+  <div class="callout">
+    <span class="callout-label">One config, one device</span>
+    <p>Don't reuse the same <code>.conf</code> file on two devices at once. WireGuard will peer-roam to whichever device sent a packet most recently and traffic will flip-flop between them. <code>add-client</code> takes ten seconds &#x2014; just run it again.</p>
+  </div>
+
+  <h2>The Security Story</h2>
+
+  <p>This is where I spent the most time. A VPN you can set up in 90 seconds is only useful if it's actually secure.</p>
+
+  <h3>Cryptography you can't misconfigure</h3>
+
+  <p>WireGuard's crypto is fixed and modern &#x2014; Curve25519, ChaCha20-Poly1305, BLAKE2s. There are no cipher suites to misconfigure because there are no cipher suites to choose.</p>
+
+  <h3>Strict key separation</h3>
+
+  <p>Three different kinds of secret, three different lifecycles:</p>
+  <ul>
+    <li><strong>DigitalOcean API token.</strong> Used only against the DO API. If you run <code>fourdollarvpn init</code>, it's saved to <code>~/.config/fourdollarvpn/config.json</code> on Linux/macOS or <code>%LOCALAPPDATA%\fourdollarvpn\config.json</code> on Windows, with <code>0600</code> perms. On Windows, that path is deliberately <em>not</em> <code>%APPDATA%</code> &#x2014; Roaming AppData is OneDrive-KFM-synced, and silently uploading a DO token to Microsoft is precisely the problem this tool is supposed to solve. If you'd rather not persist the token at all, skip <code>init</code> and pass it as an env var or flag. Either way, the token never reaches the WireGuard server itself.</li>
+    <li><strong>SSH management key.</strong> Generated per-droplet during <code>setup</code>. The public half goes into DigitalOcean just long enough for droplet creation (DO copies it into <code>/root/.ssh/authorized_keys</code> at boot), then gets deleted from your DO account. The private half is saved locally, <strong>keyed by droplet ID</strong> rather than IP &#x2014; so a future droplet that lands on a recycled IP can't impersonate the one you set up. That file is the only thing on earth that can authenticate to your server.</li>
+    <li><strong>VPN keys.</strong> Client private key is generated <strong>on your machine</strong> and never leaves it. Only the public key goes to the server. The server's private key is generated on the server and never leaves either &#x2014; its public half is derived via <code>wg pubkey</code> reading stdin, so the private key never appears in a process argv.</li>
+  </ul>
+
+  <h3>Hardened before any port is exposed</h3>
+
+  <p>Password authentication is disabled across the board. Root SSH is restricted to key-only (<code>PermitRootLogin prohibit-password</code>). <code>fail2ban</code> rate-limits SSH (5 failures = 1-hour ban) on top of UFW's built-in connection rate limiter. UFW blocks everything except SSH and WireGuard. Kernel hardening (reverse-path filtering, SYN cookies, disabled ICMP redirects, disabled source routing, disabled IPv6, martian-packet logging) is applied via <code>/etc/sysctl.d/</code> before setup declares victory. WireGuard does not log traffic by design &#x2014; there's nothing to disable.</p>
+
+  <p>Want to go further? Pass <code>--lock</code> during setup to firewall-block SSH entirely after provisioning. The server becomes a black box that does exactly one thing: route encrypted packets. Heads up &#x2014; this also prevents <code>add-client</code> and <code>check</code> from working, so add all the devices you need first. DigitalOcean's web console (a browser-based VNC, not SSH) still works for emergency recovery.</p>
+
+  <h2>What About DNS Leaks?</h2>
+
+  <p>Every client config ships with Cloudflare DNS (1.1.1.1, 1.0.0.1) baked in, and <code>AllowedIPs = 0.0.0.0/0</code> routes <strong>all</strong> IPv4 traffic through the tunnel. IPv6 is deliberately <em>not</em> tunneled: the droplet is provisioned with <code>ipv6=false</code> and the kernel has <code>disable_ipv6=1</code>, so any IPv6 traffic on your device stays on your local interface rather than silently blackholing inside the tunnel. Combine that with the WireGuard app's built-in kill switch (Windows, macOS, iOS, and Android all have one) and you get full-tunnel protection that fails closed. If your network is IPv6-only, enable the kill switch &#x2014; it'll block clear IPv6 rather than fall back to unprotected.</p>
+
+  <p>On Linux there's no app-level switch, but a single <code>iptables</code> rule achieves the same thing &#x2014; full docs are in the repo.</p>
+
+  <h2>Other Useful Commands</h2>
+
+  <div class="code-block" data-label="bash">
+    <code><span class="cmd">fourdollarvpn</span> status    <span class="cmt"># list your active FourDollarVPN servers</span>
+<span class="cmd">fourdollarvpn</span> check     <span class="cmt"># SSH in and verify everything is healthy</span>
+<span class="cmd">fourdollarvpn</span> destroy   <span class="cmt"># tear it down and stop billing</span></code>
+  </div>
+
+  <p><code>fourdollarvpn check</code> is the one I use most after the initial setup &#x2014; it shows &check;/&times; for each service, the latest WireGuard handshake (so you can confirm a remote client is actually connecting), the firewall state, and whether the background upgrade has finished.</p>
+
+  <p><code>fourdollarvpn destroy</code> gives you an interactive picker if you don't pass a droplet ID, which matters more than it sounds &#x2014; nobody wants to memorize droplet IDs at 11pm when they're trying to stop a bill.</p>
+
+  <h2>Why a Personal VPN Beats a Commercial One</h2>
+
+  <p>A personal VPN inverts the trust model:</p>
+
+  <ul>
+    <li><strong>You own the logs.</strong> WireGuard doesn't write them, and nobody can subpoena, sell, or leak what doesn't exist. There is no dashboard, no analytics pipeline, no billing system correlating your traffic to your identity.</li>
+    <li><strong>You own the server.</strong> One user, one droplet. No shared infrastructure means no blast radius from someone else's compromise. If your server ever gets popped, the damage is bounded to you &#x2014; and you can <code>fourdollarvpn destroy</code> and rebuild in 90 seconds.</li>
+    <li><strong>You own the jurisdiction.</strong> You pick the DigitalOcean region when you run <code>setup</code>. No hidden parent company in a country you've never heard of, no mystery board of directors, no quiet change of ownership in a press release you'll never read.</li>
+    <li><strong>Your IP isn't on "known commercial VPN" blocklists.</strong> Most sites that block VPNs (banks, paywalled news, Reddit-style rate-limits, fraud-detection walls) target <em>commercial</em> VPN IP ranges specifically &#x2014; they pull reputation lists that tag "this IP belongs to NordVPN" and block that. A random DigitalOcean IP doesn't show up on those lists. A dedicated IP also means whatever someone else did yesterday can't wreck your reputation today.</li>
+  </ul>
+
+  <p>Worth being honest about the limit: streaming services (Netflix, Disney+, BBC iPlayer) block nearly all datacenter IPs regardless of source. A personal DO droplet doesn't get you around those. But for the 80% of "blocked on commercial VPN" cases that aren't streaming, self-hosted on DO usually just works where a commercial provider wouldn't.</p>
+
+  <p>The downside has always been the setup friction. FourDollarVPN is my attempt to remove that friction without cutting any corners on hardening.</p>
+
+  <h2>Some Nice-to-Haves Added Along the Way</h2>
+
+  <p>A few quality-of-life things that shipped between v1.0.0 and v1.0.11 worth calling out:</p>
+
+  <ul>
+    <li><strong>Guided menu for no-argument launches.</strong> Double-click the Windows .exe (or just run <code>fourdollarvpn</code> bare) and you get a five-option menu instead of a help screen. Non-CLI users can reach the full feature set without knowing the subcommand names. Options that need SSH access to the droplet check for the local management key first and politely refuse rather than dead-ending with a cryptic error.</li>
+    <li><strong>Stale-config sweep.</strong> <code>setup</code> and <code>add-client</code> scan the working directory (and your home folder) for <code>fourdollarvpn-client-*.conf</code> files pointing at droplets DO no longer has, and offer to delete them (with matching .svg QR codes). Reduces the compounding clutter problem of "ten half-remembered configs for servers that don't exist anymore."</li>
+    <li><strong>Conditional auto-reboot.</strong> The server reboots itself at 04:00 UTC only on days where <code>/var/run/reboot-required</code> exists &#x2014; so kernel and glibc updates actually take effect without needing to remember to reboot, and you don't pay the downtime tax on days where nothing needed one.</li>
+    <li><strong>Uninstall command.</strong> <code>fourdollarvpn uninstall</code> wipes the saved token, known_hosts, and per-droplet keys from your laptop. It'll warn you if you still have droplets running so you don't orphan a paid server.</li>
+  </ul>
+
+  <div class="callout">
+    <span class="callout-label">One more tip</span>
+    <p>Once your VPN is running, you don't need the DigitalOcean API token anymore. Revoke it. Or, if you want to keep management access, create a second <em>read-only</em> token for <code>fourdollarvpn status</code> and only use a full-access token when you're actually provisioning.</p>
+  </div>
+
+  <h2 id="try-it">Try It</h2>
+
+  <p>You need a <a href="https://www.digitalocean.com/" target="_blank" rel="noopener">DigitalOcean account</a> and an <a href="https://cloud.digitalocean.com/account/api/tokens" target="_blank" rel="noopener">API token</a>. Then grab the prebuilt binary for your OS from the <a href="https://github.com/SkyzFallin/FourDollarVPN/releases/latest" target="_blank" rel="noopener">latest release</a> &#x2014; Windows x64, macOS Apple Silicon, macOS Intel, and Linux x64 are all covered, no Python needed.</p>
+
+  <div class="callout">
+    <span class="callout-label">A note on OS security warnings</span>
+    <p>The binaries aren't code-signed yet (that's on the roadmap, but the certificates cost real money). Your OS will warn you the first time you run one. That's cosmetic, not a security problem &#x2014; the binary is exactly what shipped from the GitHub Actions workflow, and you can verify it with the SHA checksums on the release page if you want. To bypass the warning: on Windows, SmartScreen shows "Windows protected your PC" &#x2014; click <strong>More info</strong>, then <strong>Run anyway</strong>. On macOS, the first launch fails silently; right-click the binary in Finder and pick <strong>Open</strong>, then click <strong>Open</strong> on the confirmation dialog. After the first run both OSes remember your choice. Linux doesn't prompt.</p>
+  </div>
+
+  <p>Prefer to install from source?</p>
+
+  <div class="code-block" data-label="bash">
+    <code><span class="cmd">pipx install</span> git+https://github.com/SkyzFallin/FourDollarVPN.git@v1.0.11
+<span class="cmd">fourdollarvpn</span> init      <span class="cmt"># save your token once</span>
+<span class="cmd">fourdollarvpn</span> setup     <span class="cmt"># ~90 seconds later you're done</span></code>
+  </div>
+
+  <p>If <code>fourdollarvpn: command not found</code> after installing from source &#x2014; Python's <code>Scripts/</code> (Windows) or <code>bin/</code> (macOS/Linux) directory isn't on your PATH. Every command in this post also works as <code>python -m fourdollarvpn ...</code> with identical behavior. So <code>fourdollarvpn setup</code> becomes <code>python -m fourdollarvpn setup</code>. Prebuilt-binary users don't hit this because the binary is invoked directly.</p>
+
+  <p class="pull-quote">"Stop renting privacy from people you don't know. Own the server, own the keys, own the silence."</p>
+
+  <p>Source code, full docs, and the CLI reference live at <a href="https://github.com/SkyzFallin/FourDollarVPN" target="_blank" rel="noopener">github.com/SkyzFallin/FourDollarVPN</a>. MIT licensed. If you hit a bug or want a feature, open an issue &#x2014; I read every one.</p>
+
+  <div class="article-footer">
+    <span>By SkyzFallin &middot; WesCastle</span>
+    <span>Tags: vpn, wireguard, privacy, infrastructure, devops</span>
+  </div>
+
+</article>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="5 7 9 12 5 17"/>
+          <line x1="13" y1="19" x2="20" y2="19"/>
+        </svg>
+        <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+      </a>
+      <p class="footer-tag">Developer tools, infrastructure ownership, and the stuff nobody tells you until it's too late.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
+      <a href="https://wescastle.com">Home</a>
+      <a href="/blog/">Blog</a>
+    </div>
+    <div class="footer-col">
+      <h4>Elsewhere</h4>
+      <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/SkyzFallin/FourDollarVPN" target="_blank" rel="noopener">FourDollarVPN repo</a>
+    </div>
+  </div>
+  <div class="footer-rule"></div>
+  <div class="footer-bottom">
+    <span class="footer-prompt"><span class="prompt-symbol">$</span> &copy; 2026 wescastle.com</span>
+  </div>
+</footer>
+
+</body>
+</html>

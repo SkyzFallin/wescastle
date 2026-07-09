@@ -5,15 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Badge Reader Trusts Me More Than It Trusts You | WesCastle Blog</title>
 <meta name="description" content="A field-notes account of cloning access-control badges on physical pentests — 125 kHz prox cards, a $50 Proxmark, why RFID access control is mostly theater, and the handful of controls that actually raise the cost of the attack.">
+<link rel="canonical" href="https://wescastle.com/blog/badge-cloning.html">
+<meta property="og:url" content="https://wescastle.com/blog/badge-cloning.html">
+<meta property="og:site_name" content="wescastle.com">
+<meta property="og:image" content="https://wescastle.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="article:published_time" content="2026-07-09">
+<meta property="article:author" content="Wes Hardcastle">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wescastle.com/og-image.png">
+<link rel="alternate" type="application/rss+xml" title="WesCastle Blog" href="/feed.xml">
 <meta property="og:title" content="Your Badge Reader Trusts Me More Than It Trusts You">
 <meta property="og:description" content="Cloning access-control badges is a five-second job with $50 of hardware. Here's how it actually works — and what actually stops it.">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://wescastle.com/blog/badge-cloning">
-<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fonts/fonts.css">
 <style>
   :root {
     --bg: #0c0e12;
@@ -92,7 +99,7 @@
   /* ── Site Footer ── */
   .site-footer { max-width:860px; margin:0 auto; padding:0 2rem 3rem; }
   .footer-grid { display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:3rem; padding:2.5rem 0 2rem; border-top:1px solid var(--border); }
-  .footer-col h4 { font-family:'JetBrains Mono', monospace; font-size:0.7rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:1rem; }
+  .footer-col .footer-heading { font-family:'JetBrains Mono', monospace; font-size:0.7rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:1rem; }
   .footer-col a { display:block; font-size:0.88rem; color:var(--text-muted); text-decoration:none; padding:0.25rem 0; transition:color 0.2s, transform 0.2s; }
   .footer-col a:hover { color:var(--text); transform:translateX(2px); }
   .footer-brand .brand { margin-bottom:0.85rem; }
@@ -114,6 +121,28 @@
     .footer-bottom { font-size:0.72rem; }
   }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Your Badge Reader Trusts Me More Than It Trusts You",
+  "description": "A field-notes account of cloning access-control badges on physical pentests — 125 kHz prox cards, a $50 Proxmark, why RFID access control is mostly theater, and the handful of controls that actually raise the cost of the attack.",
+  "url": "https://wescastle.com/blog/badge-cloning.html",
+  "mainEntityOfPage": "https://wescastle.com/blog/badge-cloning.html",
+  "image": "https://wescastle.com/og-image.png",
+  "datePublished": "2026-07-09",
+  "author": {
+    "@type": "Person",
+    "name": "Wes Hardcastle",
+    "url": "https://wescastle.com"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Wes Hardcastle",
+    "url": "https://wescastle.com"
+  }
+}
+</script>
 </head>
 <body>
 
@@ -266,12 +295,12 @@
       <p class="footer-tag">Offensive security, infrastructure ownership, and the stuff nobody tells you until it's too late.</p>
     </div>
     <div class="footer-col">
-      <h4>Site</h4>
+      <div class="footer-heading">Site</div>
       <a href="https://wescastle.com">Home</a>
       <a href="/blog/">Blog</a>
     </div>
     <div class="footer-col">
-      <h4>Elsewhere</h4>
+      <div class="footer-heading">Elsewhere</div>
       <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
       <a href="mailto:wes@wescastle.com">wes@wescastle.com</a>
     </div>

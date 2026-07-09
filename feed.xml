@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>WesCastle Blog</title>
+    <link>https://wescastle.com/blog/</link>
+    <atom:link href="https://wescastle.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Field notes from offensive security engagements, developer tooling, and infrastructure ownership. By Wes Hardcastle.</description>
+    <language>en</language>
+    <lastBuildDate>Thu, 09 Jul 2026 08:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Your Badge Reader Trusts Me More Than It Trusts You</title>
+      <link>https://wescastle.com/blog/badge-cloning.html</link>
+      <guid>https://wescastle.com/blog/badge-cloning.html</guid>
+      <pubDate>Thu, 09 Jul 2026 08:00:00 +0000</pubDate>
+      <description>A field-notes account of cloning access-control badges on physical pentests — 125 kHz prox cards, a $50 Proxmark, why RFID access control is mostly theater, and the handful of controls that actually raise the cost of the attack.</description>
+    </item>
+    <item>
+      <title>I Got Into Your Datacenter With a Clipboard</title>
+      <link>https://wescastle.com/blog/clipboard-datacenter.html</link>
+      <guid>https://wescastle.com/blog/clipboard-datacenter.html</guid>
+      <pubDate>Tue, 05 May 2026 08:00:00 +0000</pubDate>
+      <description>A field-notes account of physical penetration testing — clipboards, business-casual pretexts, $40 of hardware, wireless drop boxes in open Ethernet ports, and the part nobody talks about: leaving every site on good terms.</description>
+    </item>
+    <item>
+      <title>FourDollarVPN — A $4/month WireGuard VPN in One Command</title>
+      <link>https://wescastle.com/blog/fourdollarvpn-blog.html</link>
+      <guid>https://wescastle.com/blog/fourdollarvpn-blog.html</guid>
+      <pubDate>Fri, 17 Apr 2026 08:00:00 +0000</pubDate>
+      <description>FourDollarVPN spins up a personal WireGuard VPN on DigitalOcean in about 90 seconds, for about $4 a month. One command, no config files, no commercial provider you have to take at their word.</description>
+    </item>
+    <item>
+      <title>What Developers Actually Own When Every Tool Is Someone Else&#x27;s Platform</title>
+      <link>https://wescastle.com/blog/you-dont-own-anything-blog-post.html</link>
+      <guid>https://wescastle.com/blog/you-dont-own-anything-blog-post.html</guid>
+      <pubDate>Tue, 31 Mar 2026 08:00:00 +0000</pubDate>
+      <description>Your code is on GitHub. Your DNS is on Cloudflare. Your email is on Google. Your deployments are on Vercel. What do you actually own? Less than you think.</description>
+    </item>
+    <item>
+      <title>ForkOff: Open-Source GitHub Backup Tool That Runs While You Sleep</title>
+      <link>https://wescastle.com/blog/forkoff-blog-post.html</link>
+      <guid>https://wescastle.com/blog/forkoff-blog-post.html</guid>
+      <pubDate>Tue, 31 Mar 2026 08:00:00 +0000</pubDate>
+      <description>GitHub can suspend your account without warning. ForkOff is a free, open-source tool that mirrors all your repos locally every day — so it doesn&#x27;t matter if they do.</description>
+    </item>
+  </channel>
+</rss>

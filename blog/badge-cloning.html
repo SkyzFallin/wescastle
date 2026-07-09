@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Badge Reader Trusts Me More Than It Trusts You | WesCastle Blog</title>
+<meta name="description" content="A field-notes account of cloning access-control badges on physical pentests — 125 kHz prox cards, a $50 Proxmark, why RFID access control is mostly theater, and the handful of controls that actually raise the cost of the attack.">
+<meta property="og:title" content="Your Badge Reader Trusts Me More Than It Trusts You">
+<meta property="og:description" content="Cloning access-control badges is a five-second job with $50 of hardware. Here's how it actually works — and what actually stops it.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://wescastle.com/blog/badge-cloning">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e12;
+    --surface: #13161c;
+    --border: #252a34;
+    --border-hover: #3a4150;
+    --text: #e0e4ec;
+    --text-muted: #8891a4;
+    --text-faint: #5a6378;
+    --accent: #f97316;
+    --accent-glow: rgba(249,115,22,0.15);
+    --accent-soft: rgba(249,115,22,0.08);
+    --warm: #e8c547;
+    --blue: #3b82f6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.75; -webkit-font-smoothing:antialiased; }
+
+  /* ── Site Header ── */
+  .site-header { padding:1.75rem 2rem; max-width:860px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:1.5rem; }
+  .brand { display:inline-flex; align-items:center; gap:0.6rem; text-decoration:none; color:var(--text); transition:color 0.2s; }
+  .brand:hover { color:#fff; }
+  .brand-mark { width:26px; height:26px; padding:4px 5px; border:1px solid var(--border); border-radius:6px; color:var(--accent); background:var(--surface); transition:border-color 0.2s, transform 0.3s; }
+  .brand:hover .brand-mark { border-color:var(--accent); transform:translateY(-1px); }
+  .brand-name { font-family:'JetBrains Mono', monospace; font-weight:400; font-size:0.95rem; letter-spacing:0.04em; }
+  .brand-name .dot { color:var(--accent); }
+  .site-nav { display:flex; align-items:center; gap:0.35rem; }
+  .site-nav a { font-size:0.82rem; font-weight:500; color:var(--text-muted); text-decoration:none; padding:0.4rem 0.75rem; border-radius:6px; transition:color 0.2s, background 0.2s; }
+  .site-nav a:hover { color:var(--text); background:var(--surface); }
+  .header-rule { width:100%; max-width:860px; height:1px; background:var(--border); margin:0 auto; }
+
+  /* ── Hero ── */
+  .hero { position:relative; padding:5rem 2rem 4rem; overflow:hidden; border-bottom:1px solid var(--border); }
+  .hero::before { content:''; position:absolute; top:-40%; left:50%; transform:translateX(-50%); width:800px; height:800px; background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%); pointer-events:none; }
+  .hero-inner { max-width:780px; margin:0 auto; position:relative; z-index:1; }
+  .back-link { display:inline-flex; align-items:center; gap:0.4rem; font-family:'JetBrains Mono', monospace; font-size:0.78rem; font-weight:500; color:var(--text-muted); text-decoration:none; margin-bottom:1.5rem; transition:color 0.2s, gap 0.2s; }
+  .back-link:hover { color:var(--accent); gap:0.6rem; }
+  .back-link svg { width:12px; height:12px; }
+
+  .meta { font-size:0.8rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-muted); margin-bottom:1.5rem; font-weight:500; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+  .meta .tag { background:var(--accent); color:var(--bg); padding:0.2em 0.65em; border-radius:3px; font-size:0.7rem; font-weight:600; letter-spacing:0.08em; }
+  h1 { font-family:'DM Serif Display',serif; font-size:clamp(2.2rem,5vw,3.4rem); line-height:1.15; color:#fff; margin-bottom:1.25rem; font-weight:400; }
+  h1 .highlight { color:var(--accent); }
+  .subtitle { font-size:1.15rem; color:var(--text-muted); max-width:600px; line-height:1.7; }
+  .hero-actions { margin-top:1.4rem; font-size:0.95rem; font-weight:400; display:flex; gap:1rem; flex-wrap:wrap; align-items:center; }
+  .hero-actions a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(249,115,22,0.3); transition:border-color 0.2s; }
+  .hero-actions a:hover { border-color:var(--accent); }
+  .hero-actions .sep { color:var(--text-faint); }
+
+  /* ── Article ── */
+  .article { max-width:780px; margin:0 auto; padding:3.5rem 2rem 5rem; }
+  .article h2 { font-family:'DM Serif Display',serif; font-size:1.65rem; color:#fff; margin:3rem 0 1rem; font-weight:400; }
+  .article h2:first-of-type { margin-top:0; }
+  .article h3 { font-family:'Outfit',sans-serif; font-size:1.05rem; color:#fff; margin:2rem 0 0.85rem; font-weight:600; letter-spacing:0.01em; }
+  .article p { margin-bottom:1.35rem; font-size:1.04rem; }
+  .article ul, .article ol { margin:0 0 1.6rem 1.5rem; }
+  .article li { margin-bottom:0.6rem; font-size:1.02rem; line-height:1.7; }
+  .article a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(249,115,22,0.3); transition:border-color 0.2s; }
+  .article a:hover { border-color:var(--accent); }
+  .article strong { font-weight:500; color:#fff; }
+  .article em { color:var(--text); font-style:italic; }
+  .article code { font-family:'JetBrains Mono',monospace; font-size:0.88em; background:var(--surface); border:1px solid var(--border); padding:0.15em 0.4em; border-radius:4px; }
+
+  .callout { background:var(--accent-soft); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:1.2rem 1.5rem; margin:2rem 0; }
+  .callout p { margin:0; font-size:0.95rem; color:var(--text); }
+  .callout-label { display:block; font-size:0.7rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:0.4rem; }
+
+  .pull-quote { border-left:3px solid var(--border); padding:0.75rem 1.5rem; margin:2rem 0; font-style:italic; color:var(--text-muted); font-size:1.08rem; line-height:1.7; }
+
+  .article figure { margin:2.25rem 0; }
+  .article figure img { width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border); box-shadow:0 8px 30px rgba(0,0,0,0.4); }
+  .article figcaption { margin-top:0.7rem; font-size:0.82rem; color:var(--text-muted); text-align:center; font-style:italic; }
+
+  .article-footer { border-top:1px solid var(--border); margin-top:3rem; padding-top:1.5rem; font-size:0.85rem; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; }
+
+  /* ── Site Footer ── */
+  .site-footer { max-width:860px; margin:0 auto; padding:0 2rem 3rem; }
+  .footer-grid { display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:3rem; padding:2.5rem 0 2rem; border-top:1px solid var(--border); }
+  .footer-col h4 { font-family:'JetBrains Mono', monospace; font-size:0.7rem; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:1rem; }
+  .footer-col a { display:block; font-size:0.88rem; color:var(--text-muted); text-decoration:none; padding:0.25rem 0; transition:color 0.2s, transform 0.2s; }
+  .footer-col a:hover { color:var(--text); transform:translateX(2px); }
+  .footer-brand .brand { margin-bottom:0.85rem; }
+  .footer-tag { font-size:0.85rem; color:var(--text-muted); line-height:1.55; max-width:280px; }
+  .footer-rule { width:100%; height:1px; background:var(--border); margin-bottom:1.25rem; }
+  .footer-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; font-size:0.78rem; color:var(--text-faint); }
+  .footer-bottom a { color:var(--text-muted); text-decoration:none; border-bottom:1px dotted var(--border-hover); transition:color 0.2s, border-color 0.2s; }
+  .footer-bottom a:hover { color:var(--text); border-bottom-color:var(--text-muted); }
+  .footer-prompt { font-family:'JetBrains Mono', monospace; color:var(--text-faint); }
+  .footer-prompt .prompt-symbol { color:var(--accent); }
+
+  @media (max-width:600px) {
+    .site-header { padding:1.25rem; flex-wrap:wrap; gap:0.75rem; }
+    .site-nav a { padding:0.35rem 0.6rem; font-size:0.78rem; }
+    .hero { padding:3rem 1.25rem 2.5rem; }
+    .article { padding:2.5rem 1.25rem 3rem; }
+    .site-footer { padding:0 1.25rem 2rem; }
+    .footer-grid { grid-template-columns:1fr; gap:2rem; padding-top:2rem; }
+    .footer-bottom { font-size:0.72rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="5 7 9 12 5 17"/>
+      <line x1="13" y1="19" x2="20" y2="19"/>
+    </svg>
+    <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="https://wescastle.com">Home</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="header-rule"></div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <a href="/blog/" class="back-link">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 8H3M7 12L3 8l4-4"/></svg>
+      All posts
+    </a>
+    <div class="meta">
+      <span class="tag">Field Notes</span>
+      <span>July 9, 2026</span>
+      <span>&middot;</span>
+      <span>10 min read</span>
+    </div>
+    <h1>Your Badge Reader <span class="highlight">Trusts</span> Me More Than It Trusts You.</h1>
+    <p class="subtitle">The badge on your hip is a serial number broadcasting to anyone standing next to you in an elevator. Cloning it takes a five-dollar antenna, a fifty-dollar tool, and about a second of proximity. Here's how the attack actually works — and the small handful of controls that make it expensive.</p>
+  </div>
+</header>
+
+<article class="article">
+
+  <h2>The Card Isn't a Key. It's a Number Read Aloud.</h2>
+
+  <p>Last post I walked into a building with a clipboard and a work order. This one is about the thing on your hip that you think is protecting the door: the access badge. Because for a depressing majority of the buildings I test, that badge isn't a key at all. It's a small plastic card that, when it gets near a reader, shouts a number. The reader hears the number, checks a list, and opens the door. That's the entire security model.</p>
+
+  <p>The problem is that "shouts a number" is not a metaphor. The most common badge technology still bolted to doors across corporate America is <strong>125 kHz low-frequency proximity</strong> — HID Prox, EM4100, Indala, and their cousins. These cards have no processor, no cryptography, and no concept of a secret. They store a fixed number and transmit it, in the clear, to anything that energizes their coil. There is no challenge. There is no response. There is no "prove you're a real reader before I tell you who I am." The card simply cannot say no.</p>
+
+  <p>So if I can get a reader-shaped thing within a few inches of your card for about a second, I get the number. And once I have the number, I can write it onto a blank card that is, as far as your door is concerned, molecularly identical to yours. Same number, same behavior, same green light. Your reader has no way to tell my copy from your original, because there is nothing to tell apart. They both say the same thing.</p>
+
+  <p class="pull-quote">A 125 kHz prox card doesn't authenticate to the reader. It confesses to it.</p>
+
+  <h2>The Fifty-Dollar Skeleton Key</h2>
+
+  <p>The tool that does this is called a <strong>Proxmark3</strong>. It's a small board — the RDV4 is the nice one, but a $50 Easy clone off any electronics site does the job — with a low-frequency antenna and a high-frequency antenna, driven by a command-line client. It is, without much competition, the single most important device in a physical pentester's RFID kit. The Flipper Zero I mentioned in the clipboard post handles the easy 125 kHz reads and is wonderful for its size, but when a card gets interesting the Proxmark is what comes out of the bag.</p>
+
+  <p>The workflow against a basic prox card is almost insultingly short. I hold the Proxmark's LF antenna near the card and run one command:</p>
+
+  <p><code>lf hid read</code></p>
+
+  <p>The client prints the facility code and card number in a second or two. To make a working duplicate, I drop a rewritable <strong>T5577</strong> card on the antenna and write the same values back:</p>
+
+  <p><code>lf hid clone -w H10301 --fc 12 --cn 3456</code></p>
+
+  <p>That's it. That's the attack. A T5577 costs about a dollar in bulk and can be rewritten thousands of times, so one blank becomes whatever badge I read last. There's no cracking, no brute force, no waiting. The card was designed in an era when "someone might build a reader in their garage" was not part of the threat model, and it shows.</p>
+
+  <div class="callout">
+    <span class="callout-label">Engagement rules</span>
+    <p>Everything here happened on authorized engagements with signed scope, a get-out-of-jail letter in my pocket, and a named point of contact who knew I was coming. Reading and cloning a badge you were not hired to test is not a gray area. It's the same felony as picking the lock would be.</p>
+  </div>
+
+  <h2>Getting Close Enough</h2>
+
+  <p>The whole attack hinges on proximity, and this is where people assume it falls apart. "You'd have to press a reader against my chest," they say. Not really. There are three reliable ways to get the read, and none of them look like an attack.</p>
+
+  <h3>1. The stand-up read.</h3>
+
+  <p>A Proxmark tucked in a padded envelope or a laptop bag will read a card through fabric at a few inches. Elevators are the classic setting: everyone stands close, everyone stares at their phone, and everyone has a badge clipped to the hip or hung on a lanyard at exactly bag-height. I set the read running, hold the bag naturally, and step in next to my target. A crowded lunch line, a shared revolving door, a packed shuttle — anywhere people cluster and nobody watches the person beside them. One good second is all it takes.</p>
+
+  <h3>2. The long-range reader.</h3>
+
+  <p>If a second of intimacy is too much to count on, you buy distance. There's a well-known build in this field based on a commercial long-range reader (the community calls it a <em>Tastic RFID Thief</em>) that stuffs a high-powered prox reader and a battery into a slim case or a backpack. It reads standard 125 kHz cards from roughly a foot or more away and logs every capture. Now I don't need to spoon you in an elevator; I need to walk past you in a hallway, or set the bag on the floor next to the smoking-area bench, or lean it against the wall by the badge-in turnstile at 8:55 a.m. and let the morning rush read itself into my logs.</p>
+
+  <h3>3. The card left on the desk.</h3>
+
+  <p>Half the badges I clone were never on a person at all. People drop their badge on the desk when they sit down, leave it clipped to a bag hung on a chair, or toss it in the cupholder of a car in the parking garage. The clipboard-and-work-order routine from the last post gets me onto the floor; a badge sitting unattended on a desk while its owner is in a meeting gets me the credential. Ten seconds with the Proxmark and I've copied a card whose owner never knew I was in the room.</p>
+
+  <h2>"But We Use the Secure Cards"</h2>
+
+  <p>Here is where the conversation gets interesting, because a lot of organizations did upgrade. They moved to <strong>13.56 MHz high-frequency</strong> cards — MIFARE, iCLASS, DESFire — and were told these were secure. Some of them are. Most of the deployments aren't, for reasons that have nothing to do with the chip and everything to do with how it was rolled out.</p>
+
+  <p><strong>MIFARE Classic</strong> is the poster child. It's a high-frequency card with actual encryption, which sounds great until you learn that its Crypto-1 cipher was broken more than fifteen years ago. The Proxmark runs attacks — <em>darkside</em>, <em>nested</em>, and the newer <em>hardnested</em> — that recover the keys from a card in anywhere from seconds to a few minutes. Once the keys are out, the card is an open book: read it, clone it onto a magic MIFARE card that allows writing the normally-locked block zero, done. A "secure" card that is trivially cloned is arguably worse than a dumb prox card, because it comes with a false sense of having solved the problem.</p>
+
+  <p><strong>HID iCLASS</strong> in its original "legacy" flavor had its keys extracted and published years ago; the Proxmark clones legacy iCLASS about as easily as it clones prox. The genuinely strong options — <strong>iCLASS SE / SEOS</strong> and <strong>MIFARE DESFire EV2/EV3</strong> with properly managed diversified keys — are real cryptographic systems that I cannot clone by standing next to you. But two things keep undercutting them in the field:</p>
+
+  <ul>
+    <li><strong>Backwards compatibility.</strong> To ease migration, a huge number of "upgraded" readers are configured to <em>also</em> accept the old 125 kHz prox cards, or legacy iCLASS, right alongside the new secure ones. The moment a reader accepts both, its security is the security of the weakest card it will honor. I don't attack your DESFire deployment. I clone the prox card the same reader still happily accepts, because someone in facilities never turned the old protocol off.</li>
+    <li><strong>Default keys.</strong> Secure cards are only secure if the installer changed the keys. A shocking number of DESFire and iCLASS SE deployments run on the manufacturer's default or a single site-wide key that leaked years ago. The crypto is fine; the key management is a sticky note.</li>
+  </ul>
+
+  <div class="callout">
+    <span class="callout-label">The uncomfortable summary</span>
+    <p>The card technology on the box almost never tells you whether you're safe. A reader that also accepts legacy prox is a legacy-prox reader wearing a nicer bezel. Ask what your readers <em>accept</em>, not what your newest cards <em>are</em>.</p>
+  </div>
+
+  <h2>What the Clone Actually Buys Me</h2>
+
+  <p>A cloned badge isn't the end of the engagement — it's the part that makes everything after it boring. With a working copy of a real employee's card, I stop being a stranger who has to talk his way through every door and start being, electronically, a person who belongs.</p>
+
+  <p>The clone gets me through the turnstile without a tailgate. It gets me into the stairwell, the server-room floor, the parking garage after hours when the lobby is locked and the only entry is the badge-gated side door. Better still, every one of those entries writes an authorized-looking line in the access-control log — <em>badge #3456, granted, 7:42 p.m.</em> — under the name of an employee who was home eating dinner. The logs that are supposed to catch me instead alibi me. When the client reviews the door records after the engagement, the most unsettling slide in the debrief is the one where I show them their own access report showing "Sarah from accounting" entering the building three times on a night she wasn't there.</p>
+
+  <p>That's the finding that lands hardest. Not "your badges can be copied" in the abstract, but "here is your access log, and here is proof it's fiction."</p>
+
+  <h2>What Actually Raises the Cost</h2>
+
+  <p>Defenders want a product to buy. As with most of this work, the fixes are mostly discipline, and only some of them cost money. In rough order of impact:</p>
+
+  <ul>
+    <li><strong>Turn off legacy protocols at the reader.</strong> If you've migrated to secure high-frequency cards, disable 125 kHz prox and legacy iCLASS acceptance on every reader. This is the single highest-value change in this entire post, and it's usually a configuration setting on hardware you already own. A reader that won't listen to a prox card cannot be beaten by a cloned prox card.</li>
+    <li><strong>Move to genuinely secure credentials — SEOS, DESFire EV3 — with diversified keys.</strong> Not one site-wide key. Not the default. Per-card keys derived from a master you actually control. This turns the "stand next to you in an elevator" attack from a one-second job into a cryptographic problem I can't solve on-site.</li>
+    <li><strong>Add a second factor to the doors that matter.</strong> A card <em>plus</em> a PIN, or a card plus a biometric, on the server room, the wiring closets, and the exterior after-hours doors. A cloned card alone is now useless there. You don't need this on every interior door — you need it on the ones where a breach actually hurts.</li>
+    <li><strong>Alert on impossible and anomalous badge use.</strong> The same card badging in at two doors a hundred yards apart within ten seconds. A card used at 3 a.m. that has never once been used outside business hours. A badge entering the garage while the same employee is authenticated to the VPN from home. Your access-control system already has this data; almost nobody builds the alert.</li>
+    <li><strong>Shield and store cards.</strong> RFID-blocking badge holders defeat the walk-by and elevator reads for a couple of dollars a person. Pair it with a simple cultural rule: the badge goes in the shielded holder, not loose on the desk, not clipped to the bag on the back of the chair.</li>
+    <li><strong>Kill orphaned credentials fast.</strong> Every badge that still works for a departed employee, a lost card never deactivated, or a "temporary" contractor card from 2023 is a clone target with no owner to notice it's being used. Reconcile the active-badge list against the active-employee list on a real schedule.</li>
+  </ul>
+
+  <h2>Why This Matters</h2>
+
+  <p>The badge system is the control people <em>feel</em> the most — you tap it a dozen times a day, it clicks, the door opens, and that little ritual quietly convinces everyone that the building is locked. It's the most visible security control most employees ever touch, which makes it the most trusted, which makes it the most dangerous when the trust is misplaced.</p>
+
+  <p>And for a large share of the buildings I walk into, it is misplaced. The card is a number read aloud, the reader still answers to a protocol from the 1990s, and fifty dollars of hardware turns one second of proximity into a permanent copy of someone's identity. That's not an exotic attack. It's a solved one, running on tools you can buy openly, against technology that was never designed to resist it.</p>
+
+  <p>The good news is the same as it always is in this work: the fixes are mostly known, mostly boring, and mostly things you already have the hardware to do. Turn off the old protocols. Use real keys. Put a PIN on the doors that matter. Watch your own logs for the impossible. Do those four things and the elevator clone that used to end your engagement in a second becomes a problem the attacker can't solve standing next to you — which, most of the time, is the only place they get to stand.</p>
+
+  <p>If you read the last post and got someone into your lobby to test it, get them to clone a badge on the way out. The look on the IT lead's face when their own access report shows a ghost is worth more than any slide I could build.</p>
+
+  <div class="article-footer">
+    <span>By Wes Hardcastle &middot; WesCastle</span>
+    <span>Tags: physical security, RFID, access control, pentesting, red team, field notes</span>
+  </div>
+
+</article>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a href="https://wescastle.com" class="brand" aria-label="WesCastle home">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="5 7 9 12 5 17"/>
+          <line x1="13" y1="19" x2="20" y2="19"/>
+        </svg>
+        <span class="brand-name">wescastle<span class="dot">.</span>com</span>
+      </a>
+      <p class="footer-tag">Offensive security, infrastructure ownership, and the stuff nobody tells you until it's too late.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Site</h4>
+      <a href="https://wescastle.com">Home</a>
+      <a href="/blog/">Blog</a>
+    </div>
+    <div class="footer-col">
+      <h4>Elsewhere</h4>
+      <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
+      <a href="mailto:wes@wescastle.com">wes@wescastle.com</a>
+    </div>
+  </div>
+  <div class="footer-rule"></div>
+  <div class="footer-bottom">
+    <span class="footer-prompt"><span class="prompt-symbol">$</span> &copy; 2026 wescastle.com</span>
+  </div>
+</footer>
+
+</body>
+</html>

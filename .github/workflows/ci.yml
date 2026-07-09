@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify sitemap + RSS feed are current and all posts are linked
+        run: python3 scripts/build.py --check
+
+      - name: Validate HTML (W3C Nu validator)
+        run: |
+          npm install --no-save vnu-jar
+          java -jar node_modules/vnu-jar/build/dist/vnu.jar index.html 404.html blog/*.html
+
+      - name: Check internal links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --root-dir "${{ github.workspace }}" -- './**/*.html'
+          fail: true

@@ -1,1 +1,16 @@
+# OS cruft
+.DS_Store
+Thumbs.db
 
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Python (build script)
+__pycache__/
+*.pyc
+.venv/
+
+# Node (if ever needed)
+node_modules/

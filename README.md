@@ -10,22 +10,39 @@
   <img src="https://img.shields.io/badge/Author-SkyzFallin-ce9178?style=flat-square&logo=github&logoColor=white" alt="Author"/>
 </p>
 
-# wescastle
+# wescastle.com
 
-A retro CRT terminal animation built with pure HTML, CSS, and JavaScript. Simulates a Windows XP command prompt on a vintage beige monitor — complete with scanlines, phosphor glow, and typed commands.
+Source for [wescastle.com](https://wescastle.com) — the personal site of
+[Wes Hardcastle](https://github.com/SkyzFallin) (offensive security operator,
+red-team tooler, developer).
 
-**Author:** [SkyzFallin](https://github.com/SkyzFallin)
+The homepage is an interactive retro CRT terminal — a Windows-style command
+prompt on a vintage beige monitor, complete with scanlines, phosphor glow, and
+an auto-typed intro. Once the intro finishes (or you skip it), you get a live
+prompt: type `help` and poke around. The blog lives at
+[/blog/](https://wescastle.com/blog/).
 
-## Features
+Everything is static, self-hosted, and dependency-free at runtime: no
+frameworks, no trackers, no third-party requests (fonts are served from
+`/fonts/`).
 
-- Realistic CRT monitor frame with buttons and branding
-- Green phosphor text with scanline overlay and flicker effect
-- Auto-typing command sequence that loops
-- No dependencies — single `index.html` file
+## Layout
 
-## Usage
+```
+index.html              CRT terminal homepage (interactive)
+404.html                CRT-styled 404 page
+blog/                   Blog index + posts (self-contained HTML)
+fonts/                  Self-hosted woff2 fonts + fonts.css
+.well-known/security.txt
+robots.txt / sitemap.xml / feed.xml (RSS)
+og-image.png            Social share card
+scripts/build.py        Regenerates sitemap.xml + feed.xml from post metadata
+```
 
-Open `index.html` in any browser, or serve it with any static file server:
+## Working on it locally
+
+Serve the repo root with any static file server (needed so absolute paths like
+`/fonts/` and `/blog/` resolve):
 
 ```bash
 # Python
@@ -34,6 +51,23 @@ python -m http.server 8000
 # Node
 npx serve .
 ```
+
+## Adding a blog post
+
+1. Copy an existing post in `blog/` as a template and edit it. Keep the
+   `article:published_time` meta tag accurate — it's the source of truth for
+   dates.
+2. Add a card for it in `blog/index.html` and a line in the `open /blog`
+   section of `index.html`.
+3. Regenerate the sitemap and RSS feed:
+
+```bash
+python3 scripts/build.py
+```
+
+The script also fails loudly if a post is missing required metadata or isn't
+linked from the blog index / homepage, and CI runs it in `--check` mode on
+every push.
 
 ## License
 

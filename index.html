@@ -13,9 +13,67 @@
   <meta property="og:title" content="Wes Hardcastle — Offensive Security & Developer">
   <meta property="og:description" content="Physical, network, wireless, cloud, and AD pentests. Social engineering. Security awareness training. Things I break, build, and write about.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://wescastle.com">
+  <meta property="og:url" content="https://wescastle.com/">
+  <meta property="og:site_name" content="wescastle.com">
+  <meta property="og:image" content="https://wescastle.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://wescastle.com/og-image.png">
   <link rel="canonical" href="https://wescastle.com/">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate" type="application/rss+xml" title="WesCastle Blog" href="/feed.xml">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://wescastle.com/#wes",
+        "name": "Wes Hardcastle",
+        "url": "https://wescastle.com/",
+        "email": "mailto:wes@wescastle.com",
+        "jobTitle": "Offensive Security Operator",
+        "image": "https://wescastle.com/og-image.png",
+        "sameAs": ["https://github.com/SkyzFallin"],
+        "knowsAbout": [
+          "Penetration testing",
+          "Physical security",
+          "Social engineering",
+          "Red team operations",
+          "Active Directory security",
+          "Cloud security",
+          "Wireless security",
+          "Security awareness training"
+        ]
+      },
+      {
+        "@type": "ProfessionalService",
+        "@id": "https://wescastle.com/#services",
+        "name": "Wes Hardcastle — Offensive Security Services",
+        "url": "https://wescastle.com/",
+        "email": "wes@wescastle.com",
+        "founder": { "@id": "https://wescastle.com/#wes" },
+        "description": "Physical pentests, social engineering, internal/external network, wireless, cloud, and AD engagements, plus security awareness training.",
+        "serviceType": [
+          "Physical penetration testing",
+          "Social engineering assessments",
+          "Network penetration testing",
+          "Wireless penetration testing",
+          "Cloud security review",
+          "Security awareness training"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://wescastle.com/#site",
+        "url": "https://wescastle.com/",
+        "name": "wescastle.com",
+        "author": { "@id": "https://wescastle.com/#wes" }
+      }
+    ]
+  }
+  </script>
   <style>
     * {
       margin: 0;
@@ -317,6 +375,22 @@
       margin: 2px 0;
     }
 
+    /* Hidden input that captures typing (summons the keyboard on mobile). */
+    .kbd-input {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: transparent;
+      caret-color: transparent;
+      pointer-events: none;
+    }
+
     /* ── Bottom hint ── */
     .ground-hint {
       position: fixed;
@@ -340,6 +414,14 @@
     .ground-sep { opacity: 0.5; }
     .ground-credit { color: #fff66b; text-shadow: 0 0 6px rgba(255, 246, 107, 0.5); }
 
+    /* Calm everything down for users who ask for less motion. */
+    @media (prefers-reduced-motion: reduce) {
+      .screen::before { animation: none; }
+      .content { animation: none; }
+      .hud a.primary { animation: none; }
+      .cursor { animation: none; }
+    }
+
     @media (max-width: 720px) {
       .hud { font-size: 11px; gap: 8px; padding: 6px 10px; }
       .hud .hud-sep { display: none; }
@@ -359,7 +441,7 @@
     <span class="hud-sep">|</span>
     <a href="/blog/" class="primary">› Blog</a>
     <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">GitHub</a>
-    <a href="http://nwhoaportal.com" target="_blank" rel="noopener">NWHOAPortal</a>
+    <a href="https://nwhoaportal.com" target="_blank" rel="noopener">NWHOAPortal</a>
   </nav>
 
   <div class="monitor">
@@ -374,15 +456,30 @@
         <div class="status-bar">
           <span>STATUS: ONLINE</span>
           <span>USER: wes@wescastle.com</span>
-          <span id="clock">--/--/-- / --:--:--</span>
+          <span id="clock">--:--:--</span>
         </div>
-        <div class="terminal-output" id="output" aria-live="polite"></div>
+        <div class="terminal-output" id="output" aria-live="polite">
+          <noscript>
+            <div class="line">Wes Hardcastle &mdash; offensive security operator, red-team tooler, developer.</div>
+            <div class="line">&nbsp;</div>
+            <div class="line">Services: physical pentests, social engineering, internal/external network,</div>
+            <div class="line">wireless, cloud, and AD engagements &mdash; plus security awareness training.</div>
+            <div class="line">&nbsp;</div>
+            <div class="line">Currently building: <a href="https://nwhoaportal.com">NW HOA Portal</a> &mdash; WUCIOA compliance websites for WA HOAs.</div>
+            <div class="line">&nbsp;</div>
+            <div class="line">Blog: <a href="/blog/">wescastle.com/blog</a> &middot; GitHub: <a href="https://github.com/SkyzFallin">@SkyzFallin</a> &middot; Email: <a href="mailto:wes@wescastle.com">wes@wescastle.com</a></div>
+            <div class="line">&nbsp;</div>
+            <div class="line">(Enable JavaScript for the full interactive terminal.)</div>
+          </noscript>
+        </div>
       </div>
     </div>
   </div>
 
+  <input id="kbd" class="kbd-input" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="Terminal command input" tabindex="-1">
+
   <div class="ground-hint">
-    <span>tip: click any underlined line — or hit the HUD up top</span>
+    <span id="hint-action">tip: click or press any key to skip the intro</span>
     <span class="ground-sep">·</span>
     <span class="ground-credit">Powered by Tacos &amp; Coffee</span>
     <span class="ground-sep">·</span>
@@ -392,6 +489,9 @@
   <script>
     const output = document.getElementById('output');
     const clockEl = document.getElementById('clock');
+    const kbd = document.getElementById('kbd');
+    const hintEl = document.getElementById('hint-action');
+    const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function updateClock() {
       const now = new Date();
@@ -408,107 +508,118 @@
 
     document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
-    // Each command is one of:
-    //  - { text }                 → instant line of plain text
-    //  - { text, typed: true }    → typed out char-by-char (used for prompts the user is "typing")
-    //  - { html }                 → instant line of HTML (for links / accents)
-    //  - { delay }                → wait time after this line, in ms
+    // ── Content sections ─────────────────────────────────────────────
+    // Each section is a list of lines: { text } for plain text, { html }
+    // for links/accents, plus an optional per-line { delay } used only
+    // during the intro animation. Interactive commands replay the same
+    // sections instantly.
     const PROMPT = 'C:\\Users\\wes&gt; ';
+
+    const SECTIONS = {
+      whoami: [
+        { html: 'Wes Hardcastle &mdash; <span class="accent">offensive security operator</span>, red-team tooler, developer.', delay: 40 },
+        { html: '<span class="accent">"The IT manager\'s worst nightmare."</span>', delay: 40 },
+        { text: 'I break things on purpose, then write the tools that make breaking them faster.', delay: 40 },
+        { text: 'Self-hosting evangelist. Allergic to lock-in. Friendly to shells.', delay: 40 }
+      ],
+      skills: [
+        { html: '  <span class="accent">offsec</span>     :  ent pentests, red team ops, AD attacks, cloud sec, wifi pentests, phys-sec', delay: 30 },
+        { text: '  tradecraft :  initial access, lat-mov, privesc, soc-eng, post-ex', delay: 30 },
+        { text: '  audits     :  NIST 800-53/171, ISO 27001, PCI-DSS, GLBA, FFIEC CAT, CIS, ASVS', delay: 30 },
+        { text: '  languages  :  Python, Bash, PowerShell, TypeScript, Go', delay: 30 },
+        { text: '  infra      :  Linux, Docker, DigitalOcean, Cloudflare, GitHub Actions', delay: 30 },
+        { text: '  markets    :  SPY 0-2 DTE scalping, indicator engineering, backtests, trading bots', delay: 30 },
+        { html: '  hoa-hero   :  WUCIOA compliance websites for WA HOAs &mdash; <a href="https://nwhoaportal.com" target="_blank" rel="noopener">nwhoaportal.com</a>', delay: 30 },
+        { text: '  philosophy :  own your stack, back up everything, never trust the perimeter', delay: 30 }
+      ],
+      projects: [
+        { html: '<span class="accent">── project highlights (a few of many &mdash; full list on GitHub) ──</span>', delay: 40 },
+        { html: '  <span class="accent">ShellChain/</span>      SSH + su command execution for non-interactive shells', delay: 40 },
+        { html: '  <span class="accent">FourDollarVPN/</span>   one-command WireGuard VPN on a $4/mo droplet', delay: 40 },
+        { html: '  <span class="accent">SPYderScalp/</span>     SPY 0-2 DTE options signal monitor &mdash; multi-timeframe scoring, PyQt5', delay: 40 },
+        { html: '  <span class="accent">wescastle.com/</span>   this site &mdash; static, owned, no trackers', delay: 40 },
+        { html: '  more &rarr; <a href="https://github.com/SkyzFallin?tab=repositories" target="_blank" rel="noopener">github.com/SkyzFallin</a>', delay: 40 }
+      ],
+      services: [
+        { html: '<span class="accent">── what I do for hire ──────────────────────────────────────────</span>', delay: 40 },
+        { text: '  physical pentests   :  on-site walk-ins, badge cloning, drop-box implants', delay: 30 },
+        { text: '  social engineering  :  pretext ops, vendor impersonation, on-site SE', delay: 30 },
+        { text: '  network pentests    :  internal + external, AD attacks, lat-mov, privesc', delay: 30 },
+        { text: '  wifi pentests       :  rogue AP, evil-twin attacks, WPA2 key recovery, segmentation review', delay: 30 },
+        { html: '  cloud reviews       :  AWS, Azure, GCP &mdash; identity, exposure, misconfig', delay: 30 },
+        { text: '  awareness training  :  short, story-driven sessions built from real engagements', delay: 30 },
+        { html: '  &rarr; bundle anything above and stop paying three vendors to find the same finding twice', delay: 40 },
+        { html: '  &rarr; engagements: <a href="mailto:wes@wescastle.com">wes@wescastle.com</a>', delay: 40 }
+      ],
+      nwhoa: [
+        { html: '<span class="accent">── currently building: <a href="https://nwhoaportal.com" target="_blank" rel="noopener">NW HOA Portal</a> ──</span>', delay: 40 },
+        { text: 'A licensed WA business helping Washington HOAs and condo associations meet', delay: 30 },
+        { text: 'WUCIOA (RCW 64.90) document-access and transparency requirements.', delay: 30 },
+        { text: '', delay: 60 },
+        { text: '  what we ship :  custom community websites with private document libraries,', delay: 30 },
+        { text: '                  admin dashboards, meeting notices, and access-coded resident areas', delay: 30 },
+        { text: '  who it\'s for :  WA HOA boards staring down the Jan 2028 full-applicability deadline', delay: 30 },
+        { text: '  why it works :  cheaper than a single compliance lawsuit; built around the actual', delay: 30 },
+        { text: '                  103-control framework, not generic SaaS', delay: 30 },
+        { html: '  &rarr; <a href="https://nwhoaportal.com" target="_blank" rel="noopener">nwhoaportal.com</a> &mdash; plans from $69/mo, free WUCIOA self-assessment checklist', delay: 40 }
+      ],
+      blog: [
+        { text: '── latest writing ──────────────────────────────────────────────', delay: 30 },
+        { html: '  [07/2026]  <a href="/blog/badge-cloning.html">Your badge reader trusts me more than it trusts you</a>', delay: 40 },
+        { html: '  [05/2026]  <a href="/blog/clipboard-datacenter.html">I got into your datacenter with a clipboard</a>', delay: 40 },
+        { html: '  [04/2026]  <a href="/blog/fourdollarvpn-blog.html">FourDollarVPN &mdash; a personal VPN for the price of a coffee</a>', delay: 40 },
+        { html: '  [03/2026]  <a href="/blog/forkoff-blog-post.html">Meet ForkOff, the GitHub backup you forget is running</a>', delay: 40 },
+        { html: '  [03/2026]  <a href="/blog/you-dont-own-anything-blog-post.html">You don\'t own anything &mdash; here\'s how to fix that</a>', delay: 40 },
+        { text: '', delay: 80 },
+        { html: '  &rarr; full archive: <a href="/blog/"><span class="accent">wescastle.com/blog</span></a>', delay: 60 }
+      ],
+      contact: [
+        { html: '  email   :  <a href="mailto:wes@wescastle.com">wes@wescastle.com</a>', delay: 30 },
+        { html: '  github  :  <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">@SkyzFallin</a>', delay: 30 },
+        { html: '  blog    :  <a href="/blog/">wescastle.com/blog</a>', delay: 30 },
+        { text: '  LFG     :  pentests, social engineering ops, weird infra problems, side quests', delay: 30 }
+      ],
+      help: [
+        { text: 'available commands:', delay: 0 },
+        { html: '  <span class="accent">whoami</span>      who is this guy', delay: 0 },
+        { html: '  <span class="accent">skills</span>      cat skills.txt', delay: 0 },
+        { html: '  <span class="accent">projects</span>    project highlights', delay: 0 },
+        { html: '  <span class="accent">services</span>    what I do for hire', delay: 0 },
+        { html: '  <span class="accent">nwhoa</span>       currently building: NW HOA Portal', delay: 0 },
+        { html: '  <span class="accent">blog</span>        latest writing', delay: 0 },
+        { html: '  <span class="accent">contact</span>     how to reach me', delay: 0 },
+        { html: '  <span class="accent">clear</span>       wipe the screen', delay: 0 }
+      ]
+    };
+
+    // ── Intro sequence ───────────────────────────────────────────────
+    function section(typedCmd, lines, settle) {
+      return [
+        { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
+        { text: typedCmd, typed: true, delay: 400 },
+        { text: '', delay: 80 },
+        ...lines,
+        { text: '', delay: settle || 700 }
+      ];
+    }
+
     const commands = [
       { text: 'Microsoft Windows [Version 10.0.26200]', delay: 80 },
       { text: '(c) Wes Hardcastle. Code is mine, opinions are mine, bugs are also mine.', delay: 60 },
       { text: '', delay: 250 },
-
-      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
-      { text: 'whoami', typed: true, delay: 400 },
-      { text: '', delay: 80 },
-      { html: 'Wes Hardcastle &mdash; <span class="accent">offensive security operator</span>, red-team tooler, developer.', delay: 40 },
-      { html: '<span class="accent">"The IT manager\'s worst nightmare."</span>', delay: 40 },
-      { text: 'I break things on purpose, then write the tools that make breaking them faster.', delay: 40 },
-      { text: 'Self-hosting evangelist. Allergic to lock-in. Friendly to shells.', delay: 40 },
-      { text: '', delay: 600 },
-
-      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
-      { text: 'cat skills.txt', typed: true, delay: 500 },
-      { text: '', delay: 80 },
-      { html: '  <span class="accent">offsec</span>     :  ent pentests, red team ops, AD attacks, cloud sec, wifi pentests, phys-sec', delay: 30 },
-      { text: '  tradecraft :  initial access, lat-mov, privesc, soc-eng, post-ex', delay: 30 },
-      { text: '  audits     :  NIST 800-53/171, ISO 27001, PCI-DSS, GLBA, FFIEC CAT, CIS, ASVS', delay: 30 },
-      { text: '  languages  :  Python, Bash, PowerShell, TypeScript, Go', delay: 30 },
-      { text: '  infra      :  Linux, Docker, DigitalOcean, Cloudflare, GitHub Actions', delay: 30 },
-      { text: '  markets    :  SPY 0-2 DTE scalping, indicator engineering, backtests, trading bots', delay: 30 },
-      { html: '  hoa-hero   :  WUCIOA compliance websites for WA HOAs &mdash; <a href="https://nwhoaportal.com" target="_blank" rel="noopener">nwhoaportal.com</a>', delay: 30 },
-      { text: '  philosophy :  own your stack, back up everything, never trust the perimeter', delay: 30 },
-      { text: '', delay: 700 },
-
-      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
-      { text: 'ls ./projects --highlights', typed: true, delay: 500 },
-      { text: '', delay: 80 },
-      { html: '<span class="accent">── project highlights (a few of many &mdash; full list on GitHub) ──</span>', delay: 40 },
-      { html: '  <span class="accent">ShellChain/</span>      SSH + su command execution for non-interactive shells', delay: 40 },
-      { html: '  <span class="accent">FourDollarVPN/</span>   one-command WireGuard VPN on a $4/mo droplet', delay: 40 },
-      { html: '  <span class="accent">SPYderScalp/</span>     SPY 0-2 DTE options signal monitor &mdash; multi-timeframe scoring, PyQt5', delay: 40 },
-      { html: '  <span class="accent">wescastle.com/</span>   this site &mdash; static, owned, no trackers', delay: 40 },
-      { html: '  more &rarr; <a href="https://github.com/SkyzFallin?tab=repositories" target="_blank" rel="noopener">github.com/SkyzFallin</a>', delay: 40 },
-      { text: '', delay: 700 },
-
-      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
-      { text: 'cat services.txt', typed: true, delay: 600 },
-      { text: '', delay: 80 },
-      { html: '<span class="accent">── what I do for hire ──────────────────────────────────────────</span>', delay: 40 },
-      { text: '  physical pentests   :  on-site walk-ins, badge cloning, drop-box implants', delay: 30 },
-      { text: '  social engineering  :  pretext ops, vendor impersonation, on-site SE', delay: 30 },
-      { text: '  network pentests    :  internal + external, AD attacks, lat-mov, privesc', delay: 30 },
-      { text: '  wifi pentests       :  rogue AP, evil-twin attacks, WPA2 key recovery, segmentation review', delay: 30 },
-      { html: '  cloud reviews       :  AWS, Azure, GCP &mdash; identity, exposure, misconfig', delay: 30 },
-      { text: '  awareness training  :  short, story-driven sessions built from real engagements', delay: 30 },
-      { html: '  &rarr; bundle anything above and stop paying three vendors to find the same finding twice', delay: 40 },
-      { html: '  &rarr; engagements: <a href="mailto:wes@wescastle.com">wes@wescastle.com</a>', delay: 40 },
-      { text: '', delay: 900 },
-
-      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
-      { text: 'cat ./now/nwhoaportal.txt', typed: true, delay: 600 },
-      { text: '', delay: 80 },
-      { html: '<span class="accent">── currently building: <a href="https://nwhoaportal.com" target="_blank" rel="noopener">NW HOA Portal</a> ──</span>', delay: 40 },
-      { text: 'A licensed WA business helping Washington HOAs and condo associations meet', delay: 30 },
-      { text: 'WUCIOA (RCW 64.90) document-access and transparency requirements.', delay: 30 },
-      { text: '', delay: 60 },
-      { text: '  what we ship :  custom community websites with private document libraries,', delay: 30 },
-      { text: '                  admin dashboards, meeting notices, and access-coded resident areas', delay: 30 },
-      { text: '  who it\'s for :  WA HOA boards staring down the Jan 2028 full-applicability deadline', delay: 30 },
-      { text: '  why it works :  cheaper than a single compliance lawsuit; built around the actual', delay: 30 },
-      { text: '                  103-control framework, not generic SaaS', delay: 30 },
-      { html: '  &rarr; <a href="https://nwhoaportal.com" target="_blank" rel="noopener">nwhoaportal.com</a> &mdash; plans from $69/mo, free WUCIOA self-assessment checklist', delay: 40 },
-      { text: '', delay: 900 },
-
-      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
-      { text: 'open /blog', typed: true, delay: 600 },
-      { text: '', delay: 80 },
-      { text: '── latest writing ──────────────────────────────────────────────', delay: 30 },
-      { html: '  [05/2026]  <a href="/blog/clipboard-datacenter.html">I got into your datacenter with a clipboard</a>', delay: 40 },
-      { html: '  [04/2026]  <a href="/blog/fourdollarvpn-blog.html">FourDollarVPN &mdash; a personal VPN for the price of a coffee</a>', delay: 40 },
-      { html: '  [03/2026]  <a href="/blog/forkoff-blog-post.html">Meet ForkOff, the GitHub backup you forget is running</a>', delay: 40 },
-      { html: '  [03/2026]  <a href="/blog/you-dont-own-anything-blog-post.html">You don\'t own anything &mdash; here\'s how to fix that</a>', delay: 40 },
-      { text: '', delay: 80 },
-      { html: '  &rarr; full archive: <a href="/blog/"><span class="accent">wescastle.com/blog</span></a>', delay: 60 },
-      { text: '', delay: 900 },
-
-      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
-      { text: 'contact --short', typed: true, delay: 600 },
-      { text: '', delay: 80 },
-      { html: '  email   :  <a href="mailto:wes@wescastle.com">wes@wescastle.com</a>', delay: 30 },
-      { html: '  github  :  <a href="https://github.com/SkyzFallin" target="_blank" rel="noopener">@SkyzFallin</a>', delay: 30 },
-      { html: '  blog    :  <a href="/blog/">wescastle.com/blog</a>', delay: 30 },
-      { text: '  LFG     :  pentests, social engineering ops, weird infra problems, side quests', delay: 30 },
-      { text: '', delay: 1200 },
-
-      { html: '<span class="prompt-text">' + PROMPT + '</span>', delay: 40, noBreak: true },
-      { text: '', delay: 4500 }
+      ...section('whoami', SECTIONS.whoami, 600),
+      ...section('cat skills.txt', SECTIONS.skills, 700),
+      ...section('ls ./projects --highlights', SECTIONS.projects, 700),
+      ...section('cat services.txt', SECTIONS.services, 900),
+      ...section('cat ./now/nwhoaportal.txt', SECTIONS.nwhoa, 900),
+      ...section('open /blog', SECTIONS.blog, 900),
+      ...section('contact --short', SECTIONS.contact, 800)
     ];
 
     let cmdIndex = 0;
     let charIndex = 0;
-    let loopCount = 0;
+    let introTimer = null;
+    let interactive = false;
 
     // Auto-scroll only when the user is already pinned to the bottom.
     // If they scroll up, we leave them alone so they can read or click links;
@@ -535,20 +646,28 @@
       if (e.deltaY < 0) stickToBottom = false;
     }, { passive: true });
 
-    function appendBlockHTML(html) {
+    function makeLine(html) {
       const line = document.createElement('div');
       line.className = 'line';
-      line.innerHTML = html;
-      output.appendChild(line);
+      if (html !== undefined) line.innerHTML = html;
+      return line;
+    }
+
+    function appendBlockHTML(html) {
+      output.appendChild(makeLine(html));
       maybeScrollToBottom();
     }
 
     function appendBlockText(text) {
-      const line = document.createElement('div');
-      line.className = 'line';
+      const line = makeLine();
       line.textContent = text;
       output.appendChild(line);
       maybeScrollToBottom();
+    }
+
+    function appendSectionLine(l) {
+      if (l.html !== undefined) appendBlockHTML(l.html);
+      else appendBlockText(l.text);
     }
 
     function ensureTypingTarget() {
@@ -556,8 +675,7 @@
       // If there is no last line, create one.
       let last = output.lastElementChild;
       if (!last) {
-        last = document.createElement('div');
-        last.className = 'line';
+        last = makeLine();
         output.appendChild(last);
       }
       return last;
@@ -565,13 +683,7 @@
 
     function typeCommand() {
       if (cmdIndex >= commands.length) {
-        cmdIndex = 0;
-        loopCount++;
-        if (loopCount >= 4) {
-          output.innerHTML = '';
-          loopCount = 0;
-        }
-        setTimeout(typeCommand, 2500);
+        startInteractive();
         return;
       }
 
@@ -583,28 +695,22 @@
           target.append(cmd.text[charIndex]);
           charIndex++;
           maybeScrollToBottom();
-          setTimeout(typeCommand, 55 + Math.random() * 90);
+          introTimer = setTimeout(typeCommand, 55 + Math.random() * 90);
         } else {
           // Finished typing this command — start a fresh line for the next output.
-          const nextLine = document.createElement('div');
-          nextLine.className = 'line';
-          output.appendChild(nextLine);
+          output.appendChild(makeLine());
           charIndex = 0;
           cmdIndex++;
-          setTimeout(typeCommand, cmd.delay || 100);
+          introTimer = setTimeout(typeCommand, cmd.delay || 100);
         }
         return;
       }
 
       // noBreak prompts get inlined into a fresh line that the next typed command will append to.
       if (cmd.noBreak) {
-        const line = document.createElement('div');
-        line.className = 'line';
-        line.innerHTML = cmd.html || cmd.text;
-        output.appendChild(line);
-        maybeScrollToBottom();
+        appendBlockHTML(cmd.html || cmd.text);
         cmdIndex++;
-        setTimeout(typeCommand, cmd.delay || 50);
+        introTimer = setTimeout(typeCommand, cmd.delay || 50);
         return;
       }
 
@@ -614,10 +720,181 @@
         appendBlockText(cmd.text);
       }
       cmdIndex++;
-      setTimeout(typeCommand, cmd.delay || 50);
+      introTimer = setTimeout(typeCommand, cmd.delay || 50);
     }
 
-    setTimeout(typeCommand, 400);
+    // ── Skip / fast-forward ──────────────────────────────────────────
+    function skipIntro() {
+      if (interactive) return;
+      clearTimeout(introTimer);
+
+      while (cmdIndex < commands.length) {
+        const cmd = commands[cmdIndex];
+        if (cmd.typed) {
+          const target = ensureTypingTarget();
+          target.append(cmd.text.slice(charIndex));
+          charIndex = 0;
+          output.appendChild(makeLine());
+        } else if (cmd.noBreak) {
+          output.appendChild(makeLine(cmd.html || cmd.text));
+        } else if (cmd.html !== undefined) {
+          output.appendChild(makeLine(cmd.html));
+        } else {
+          const line = makeLine();
+          line.textContent = cmd.text;
+          output.appendChild(line);
+        }
+        cmdIndex++;
+      }
+      stickToBottom = true;
+      output.scrollTop = output.scrollHeight;
+      startInteractive();
+    }
+
+    // ── Interactive prompt ───────────────────────────────────────────
+    let typedSpan = null;
+    let inputLine = null;
+
+    function newInputLine() {
+      inputLine = makeLine();
+      const promptSpan = document.createElement('span');
+      promptSpan.className = 'prompt-text';
+      promptSpan.innerHTML = PROMPT;
+      typedSpan = document.createElement('span');
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      cursor.setAttribute('aria-hidden', 'true');
+      inputLine.appendChild(promptSpan);
+      inputLine.appendChild(typedSpan);
+      inputLine.appendChild(cursor);
+      output.appendChild(inputLine);
+      stickToBottom = true;
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function startInteractive() {
+      if (interactive) return;
+      interactive = true;
+      newInputLine();
+      hintEl.textContent = "tip: type 'help' + Enter — or click any underlined link";
+      kbd.value = '';
+      // Programmatic focus won't summon the mobile keyboard (that needs a
+      // tap on the screen), so this is desktop-only in practice.
+      kbd.focus({ preventScroll: true });
+    }
+
+    function renderInput() {
+      if (typedSpan) typedSpan.textContent = kbd.value;
+      maybeScrollToBottom();
+    }
+
+    const EGGS = {
+      'sudo': ["Access granted. Just kidding — nice try though.", "Escalation attempts are logged and framed on my wall."],
+      'format c:': ['Access is denied.', "(You'd be amazed how often that works on real engagements, though.)"],
+      'rm -rf /': ['Nice try. This terminal is read-mostly.', "If you want to break things professionally, see 'services'."],
+      'hack': ["I only do that with a signed SOW. See 'services'.", 'Rules of engagement exist for a reason.'],
+      'exit': ["There is no escape. Try 'blog' instead."],
+      'quit': ["There is no escape. Try 'blog' instead."]
+    };
+
+    function resolveCommand(raw) {
+      const c = raw.trim().toLowerCase();
+      if (c === '') return [];
+      if (c === 'help' || c === '?') return SECTIONS.help;
+      if (c === 'whoami' || c === 'who') return SECTIONS.whoami;
+      if (c === 'skills' || c === 'cat skills.txt' || c === 'skills.txt') return SECTIONS.skills;
+      if (c === 'projects' || c === 'ls' || c === 'dir' || c.startsWith('ls ')) return SECTIONS.projects;
+      if (c === 'services' || c === 'hire' || c === 'cat services.txt') return SECTIONS.services;
+      if (c === 'nwhoa' || c === 'nwhoaportal' || c === 'hoa') return SECTIONS.nwhoa;
+      if (c === 'blog' || c === 'open /blog' || c === 'writing') return SECTIONS.blog;
+      if (c === 'contact' || c === 'email' || c === 'contact --short') return SECTIONS.contact;
+      if (c === 'clear' || c === 'cls') return 'CLEAR';
+      for (const key of Object.keys(EGGS)) {
+        if (c === key || c.startsWith(key + ' ')) {
+          return EGGS[key].map(t => ({ text: t }));
+        }
+      }
+      if (c.startsWith('cat ')) {
+        return [{ text: "The system cannot find the file specified. Try 'skills', 'services', or 'help'." }];
+      }
+      return [
+        { text: `'${raw.trim()}' is not recognized as an internal or external command.` },
+        { html: "type <span class=\"accent\">help</span> to see what this terminal understands." }
+      ];
+    }
+
+    function runCommand(raw) {
+      // Freeze the current input line as a plain echo of what was typed.
+      inputLine.innerHTML = '<span class="prompt-text">' + PROMPT + '</span>';
+      inputLine.appendChild(document.createTextNode(raw));
+      typedSpan = null;
+
+      const result = resolveCommand(raw);
+      if (result === 'CLEAR') {
+        output.innerHTML = '';
+      } else if (result.length) {
+        output.appendChild(makeLine());
+        result.forEach(appendSectionLine);
+        output.appendChild(makeLine());
+      }
+      newInputLine();
+      renderInput();
+    }
+
+    // ── Input wiring ─────────────────────────────────────────────────
+    kbd.addEventListener('input', renderInput);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (!interactive) {
+        // Any reasonable key skips the intro. preventDefault so the
+        // skip keystroke doesn't leak into the freshly-focused input.
+        if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ' || e.key.length === 1) {
+          e.preventDefault();
+          skipIntro();
+        }
+        return;
+      }
+
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const raw = kbd.value;
+        kbd.value = '';
+        runCommand(raw);
+        return;
+      }
+
+      // Keystrokes that land outside the hidden input (user never clicked):
+      // mirror them into the buffer, then capture focus for the rest.
+      if (e.target !== kbd) {
+        if (e.key === 'Backspace') {
+          kbd.value = kbd.value.slice(0, -1);
+          renderInput();
+        } else if (e.key.length === 1) {
+          kbd.value += e.key;
+          renderInput();
+        }
+        kbd.focus({ preventScroll: true });
+      }
+    });
+
+    document.querySelector('.screen').addEventListener('click', (e) => {
+      if (e.target.closest('a')) return; // let links be links
+      if (!interactive) {
+        skipIntro();
+      } else {
+        // A real user tap — this one CAN summon the mobile keyboard.
+        kbd.focus({ preventScroll: true });
+      }
+    });
+
+    // ── Boot ─────────────────────────────────────────────────────────
+    if (REDUCED_MOTION) {
+      skipIntro();
+    } else {
+      introTimer = setTimeout(typeCommand, 400);
+    }
   </script>
 </body>
 </html>
